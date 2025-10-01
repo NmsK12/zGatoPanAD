@@ -6,6 +6,31 @@ const path = require('path');
 const axios = require('axios');
 const moment = require('moment');
 
+// Función para sincronizar API Key con la API correspondiente
+async function syncKeyToAPI(serverKey, apiKey, description, expiresAt) {
+    try {
+        const apiUrl = API_SERVERS[serverKey].url;
+        console.log(`🔄 Sincronizando key ${apiKey} con ${serverKey}...`);
+        
+        const response = await axios.post(`${apiUrl}/register-key`, {
+            key: apiKey,
+            description: description,
+            expires_at: expiresAt
+        }, {
+            timeout: 10000
+        });
+        
+        if (response.data.success) {
+            console.log(`✅ Key sincronizada exitosamente con ${serverKey}`);
+        } else {
+            console.log(`❌ Error sincronizando ${serverKey}: ${response.data.error}`);
+        }
+        
+    } catch (error) {
+        console.log(`❌ Error conectando a ${serverKey}: ${error.message}`);
+    }
+}
+
 const app = express();
 const PORT = process.env.PORT || 3000;
 
@@ -253,6 +278,9 @@ app.post('/api-keys/:server/generate', requireAuth, async (req, res) => {
         const exampleUrl = `${API_SERVERS[server].url}/?dni=12345678&key=${apiKey}`;
         
         console.log(`✅ API Key creada exitosamente: ${apiKey}`);
+        
+        // Sincronizar automáticamente con la API
+        syncKeyToAPI(server, apiKey, descriptionValue, expiresAt.toISOString());
         
         res.json({ 
             success: true, 
