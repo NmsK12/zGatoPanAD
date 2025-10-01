@@ -191,10 +191,14 @@ app.post('/api-keys/:server/generate', requireAuth, (req, res) => {
                 return res.status(500).json({ error: 'Error creando API Key' });
             }
             
+            // Generar URL de ejemplo
+            const exampleUrl = `${API_SERVERS[server].url}/?dni=12345678&key=${apiKey}`;
+            
             res.json({ 
                 success: true, 
                 key: apiKey,
-                expires_at: expiresAt.toISOString()
+                expires_at: expiresAt.toISOString(),
+                example_url: exampleUrl
             });
         });
 });

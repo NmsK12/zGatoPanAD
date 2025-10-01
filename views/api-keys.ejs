@@ -151,7 +151,12 @@ const body = `
                 </div>
                 <div class="mb-3">
                     <label class="form-label">URL de ejemplo:</label>
-                    <input type="text" class="form-control" id="exampleUrl" readonly>
+                    <div class="input-group">
+                        <input type="text" class="form-control" id="exampleUrl" readonly>
+                        <button class="btn btn-outline-secondary" type="button" onclick="copyToClipboard(document.getElementById('exampleUrl').value)">
+                            <i class="fas fa-copy"></i>
+                        </button>
+                    </div>
                 </div>
             </div>
             <div class="modal-footer">
@@ -170,7 +175,7 @@ function generateKey() {
     const form = document.getElementById('generateForm');
     const formData = new FormData(form);
     
-    fetch('/api-keys/${server}/generate', {
+    fetch('/api-keys/<%= server %>/generate', {
         method: 'POST',
         body: formData
     })
@@ -178,7 +183,7 @@ function generateKey() {
     .then(data => {
         if (data.success) {
             document.getElementById('generatedKey').value = data.key;
-            document.getElementById('exampleUrl').value = '${serverInfo.url}/?dni=12345678&key=' + data.key;
+            document.getElementById('exampleUrl').value = data.example_url;
             
             // Cerrar modal de generación y abrir modal de resultado
             const generateModal = bootstrap.Modal.getInstance(document.getElementById('generateModal'));
@@ -203,7 +208,7 @@ function generateKey() {
 
 function deleteKey(keyId) {
     if (confirm('¿Estás seguro de que quieres eliminar esta API Key?')) {
-        fetch('/api-keys/${server}/' + keyId, {
+        fetch('/api-keys/<%= server %>/' + keyId, {
             method: 'DELETE'
         })
         .then(response => response.json())
