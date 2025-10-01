@@ -178,22 +178,29 @@ app.post('/api-keys/:server/generate', requireAuth, (req, res) => {
         
         console.log(`Generando API Key para servidor: ${server}`);
         console.log(`Minutos: ${minutes}, Descripción: ${description}`);
+        console.log(`Body completo:`, req.body);
         
         if (!API_SERVERS[server]) {
             console.log(`Servidor no encontrado: ${server}`);
             return res.status(404).json({ error: 'Servidor no encontrado' });
         }
         
+        // Validar y establecer valores por defecto
+        const minutesValue = parseInt(minutes) || 60; // Default 60 minutos si no se especifica
+        const descriptionValue = description || 'API Key generada desde panel';
+        
+        console.log(`Valores procesados - Minutos: ${minutesValue}, Descripción: ${descriptionValue}`);
+        
         // Generar API Key
         const apiKey = require('crypto').randomBytes(16).toString('hex');
-        const expiresAt = new Date(Date.now() + (minutes * 60 * 1000));
+        const expiresAt = new Date(Date.now() + (minutesValue * 60 * 1000));
         
         console.log(`API Key generada: ${apiKey}`);
         console.log(`Expira en: ${expiresAt.toISOString()}`);
         
         db.run(`INSERT INTO api_keys (server, key, description, expires_at, created_by) 
                 VALUES (?, ?, ?, ?, ?)`,
-            [server, apiKey, description, expiresAt.toISOString(), req.session.username],
+            [server, apiKey, descriptionValue, expiresAt.toISOString(), req.session.username],
             function(err) {
                 if (err) {
                     console.error('Error en base de datos:', err);
