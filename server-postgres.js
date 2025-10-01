@@ -29,25 +29,50 @@ function formatTimeRemaining(seconds) {
 // Función para sincronizar API Key con la API correspondiente
 async function syncKeyToAPI(serverKey, apiKey, description, expiresAt) {
     try {
-        const apiUrl = API_SERVERS[serverKey].url;
         console.log(`🔄 Sincronizando key ${apiKey} con ${serverKey}...`);
         
-        const response = await axios.post(`${apiUrl}/register-key`, {
-            key: apiKey,
-            description: description,
-            expires_at: expiresAt
-        }, {
-            timeout: 10000
-        });
+        // URLs de PostgreSQL para cada servidor
+        const DATABASE_URLS = {
+            'dni-basico': 'postgresql://postgres:obhVnLxfoSFQDRtwtSBPayWfuFxGUGFx@yamabiko.proxy.rlwy.net:25975/railway',
+            'dni-detallado': 'postgresql://postgres:KtvWiXujOvJYKfgJPMHxGntBaDYHPAXg@yamabiko.proxy.rlwy.net:27118/railway',
+            'certificados': 'postgresql://postgres:HwTdcvNsmJyRlcExdwNbjInngGAAnJPA@ballast.proxy.rlwy.net:28072/railway',
+            'arbol-genealogico': 'postgresql://postgres:qzvXzemtXvpyZsqIMZaQJrMdmqvrgckT@crossover.proxy.rlwy.net:57036/railway',
+            'busqueda-nombres': 'postgresql://postgres:yrgxHVIPjGFTNBQXTLiDltHAzFkaNCUr@gondola.proxy.rlwy.net:49761/railway'
+        };
         
-        if (response.data.success) {
-            console.log(`✅ Key sincronizada exitosamente con ${serverKey}`);
-        } else {
-            console.log(`❌ Error sincronizando ${serverKey}: ${response.data.error}`);
+        const databaseUrl = DATABASE_URLS[serverKey];
+        if (!databaseUrl) {
+            console.log(`❌ URL de base de datos no encontrada para ${serverKey}`);
+            return;
         }
         
+        // Insertar directamente en PostgreSQL
+        const { Pool } = require('pg');
+        const pool = new Pool({ connectionString: databaseUrl });
+        const client = await pool.connect();
+        
+        // Calcular tiempo restante
+        const expiresDate = new Date(expiresAt);
+        const now = new Date();
+        const timeRemaining = Math.max(0, Math.floor((expiresDate - now) / 1000));
+        
+        await client.query(`
+            INSERT INTO api_keys (key, expires_at, description, created_by, time_remaining)
+            VALUES ($1, $2, $3, $4, $5)
+            ON CONFLICT (key) DO UPDATE SET
+                expires_at = EXCLUDED.expires_at,
+                description = EXCLUDED.description,
+                created_by = EXCLUDED.created_by,
+                time_remaining = EXCLUDED.time_remaining
+        `, [apiKey, expiresAt, description, 'zGatoO', timeRemaining]);
+        
+        client.release();
+        await pool.end();
+        
+        console.log(`✅ Key sincronizada exitosamente con ${serverKey}`);
+        
     } catch (error) {
-        console.log(`❌ Error conectando a ${serverKey}: ${error.message}`);
+        console.log(`❌ Error sincronizando ${serverKey}: ${error.message}`);
     }
 }
 
@@ -342,6 +367,7 @@ app.post('/api-keys/:server/generate', requireAuth, async (req, res) => {
         const server = req.params.server;
         const { minutes, description } = req.body;
         
+        console.log(`📥 Datos recibidos del formulario:`, req.body);
         console.log(`Generando API Key para servidor: ${server}`);
         console.log(`Minutos: ${minutes}, Descripción: ${description}`);
         
@@ -357,7 +383,7 @@ app.post('/api-keys/:server/generate', requireAuth, async (req, res) => {
         const apiKey = require('crypto').randomBytes(16).toString('hex');
         const expiresAt = new Date(Date.now() + (minutesValue * 60 * 1000));
         
-        // Insertar en PostgreSQL
+        // Insertar en PostgreSQL del panel
         const client = await pool.connect();
         const result = await client.query(`
             INSERT INTO api_keys (server, key, description, expires_at, created_by) 
@@ -365,6 +391,9 @@ app.post('/api-keys/:server/generate', requireAuth, async (req, res) => {
             RETURNING *
         `, [server, apiKey, descriptionValue, expiresAt.toISOString(), req.session.username]);
         client.release();
+        
+        // Sincronizar con el servidor correspondiente
+        await syncKeyToAPI(server, apiKey, descriptionValue, expiresAt.toISOString());
         
         // Generar URL de ejemplo según el servidor
         let exampleUrl;
