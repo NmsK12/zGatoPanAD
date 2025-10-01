@@ -6,6 +6,26 @@ const path = require('path');
 const axios = require('axios');
 const moment = require('moment');
 
+// Función para formatear tiempo restante
+function formatTimeRemaining(seconds) {
+    if (seconds <= 0) return 'Expirada';
+    
+    const days = Math.floor(seconds / 86400);
+    const hours = Math.floor((seconds % 86400) / 3600);
+    const minutes = Math.floor((seconds % 3600) / 60);
+    const secs = seconds % 60;
+    
+    if (days > 0) {
+        return `${days}d ${hours}h ${minutes}m ${secs}s`;
+    } else if (hours > 0) {
+        return `${hours}h ${minutes}m ${secs}s`;
+    } else if (minutes > 0) {
+        return `${minutes}m ${secs}s`;
+    } else {
+        return `${secs}s`;
+    }
+}
+
 // Función para sincronizar API Key con la API correspondiente
 async function syncKeyToAPI(serverKey, apiKey, description, expiresAt) {
     try {
@@ -32,13 +52,14 @@ async function syncKeyToAPI(serverKey, apiKey, description, expiresAt) {
 }
 
 // Función para sincronizar eliminación de API Key con la API correspondiente
-async function syncKeyDeletionToAPI(serverKey, apiKey) {
+async function syncKeyDeletionToAPI(serverKey, apiKey, createdBy) {
     try {
         const apiUrl = API_SERVERS[serverKey].url;
         console.log(`🗑️ Eliminando key ${apiKey} de ${serverKey}...`);
         
         const response = await axios.post(`${apiUrl}/delete-key`, {
-            key: apiKey
+            key: apiKey,
+            created_by: createdBy
         }, {
             timeout: 10000
         });
@@ -289,18 +310,25 @@ app.get('/api-keys/:server', requireAuth, async (req, res) => {
                    CASE WHEN expires_at > NOW() THEN false ELSE true END as is_expired,
                    TO_CHAR(expires_at, 'DD/MM/YYYY HH24:MI') as expires_at_formatted,
                    TO_CHAR(created_at, 'DD/MM/YYYY HH24:MI') as created_at_formatted,
-                   CASE WHEN last_used IS NOT NULL THEN TO_CHAR(last_used, 'DD/MM/YYYY HH24:MI') ELSE 'Nunca' END as last_used_formatted
+                   CASE WHEN last_used IS NOT NULL THEN TO_CHAR(last_used, 'DD/MM/YYYY HH24:MI') ELSE 'Nunca' END as last_used_formatted,
+                   EXTRACT(EPOCH FROM (expires_at - NOW()))::INTEGER as time_remaining_seconds
             FROM api_keys 
             WHERE server = $1 
             ORDER BY created_at DESC
         `, [server]);
         client.release();
         
+        const apiKeys = result.rows.map(key => ({
+            ...key,
+            time_remaining_formatted: formatTimeRemaining(key.time_remaining_seconds || 0),
+            can_delete: key.created_by === req.session.username
+        }));
+        
         res.render('api-keys', { 
             user: req.session.username,
             server: server,
             serverInfo: API_SERVERS[server],
-            keys: result.rows
+            keys: apiKeys
         });
         
     } catch (error) {
@@ -409,7 +437,7 @@ app.delete('/api-keys/:server/:keyId', requireAuth, async (req, res) => {
         }
         
         // Sincronizar eliminación con el servidor correspondiente
-        syncKeyDeletionToAPI(server, apiKey);
+        syncKeyDeletionToAPI(server, apiKey, req.session.username);
         
         res.json({ success: true });
         
