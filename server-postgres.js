@@ -325,8 +325,24 @@ app.post('/api-keys/:server/generate', requireAuth, async (req, res) => {
         `, [server, apiKey, descriptionValue, expiresAt.toISOString(), req.session.username]);
         client.release();
         
-        // Generar URL de ejemplo
-        const exampleUrl = `${API_SERVERS[server].url}/?dni=12345678&key=${apiKey}`;
+        // Generar URL de ejemplo según el servidor
+        let exampleUrl;
+        switch(server) {
+            case 'dni-basico':
+                exampleUrl = `${API_SERVERS[server].url}/dniresult?dni=12345678&key=${apiKey}`;
+                break;
+            case 'dni-detallado':
+                exampleUrl = `${API_SERVERS[server].url}/dnit?dni=12345678&key=${apiKey}`;
+                break;
+            case 'certificados':
+                exampleUrl = `${API_SERVERS[server].url}/antpen?dni=12345678&key=${apiKey}`;
+                break;
+            case 'arbol-genealogico':
+                exampleUrl = `${API_SERVERS[server].url}/ag?dni=12345678&key=${apiKey}`;
+                break;
+            default:
+                exampleUrl = `${API_SERVERS[server].url}/?dni=12345678&key=${apiKey}`;
+        }
         
         console.log(`✅ API Key creada exitosamente: ${apiKey}`);
         
