@@ -1,0 +1,240 @@
+<%
+const title = `API Keys - ${serverInfo.name}`;
+const body = `
+<div class="row">
+    <div class="col-12">
+        <div class="card mb-4">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h5 class="card-title mb-1">
+                            <i class="fas fa-key me-2"></i>Gestionar API Keys
+                        </h5>
+                        <p class="card-text text-muted">${serverInfo.name} - ${serverInfo.url}</p>
+                    </div>
+                    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#generateModal">
+                        <i class="fas fa-plus me-2"></i>Generar Nueva Key
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body">
+                <h6 class="card-title mb-3">API Keys Existentes</h6>
+                ${keys.length === 0 ? `
+                    <div class="text-center py-5">
+                        <i class="fas fa-key fa-3x text-muted mb-3"></i>
+                        <h6 class="text-muted">No hay API Keys generadas</h6>
+                        <p class="text-muted">Genera tu primera API Key para comenzar</p>
+                    </div>
+                ` : `
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>API Key</th>
+                                    <th>Descripción</th>
+                                    <th>Estado</th>
+                                    <th>Expira</th>
+                                    <th>Usos</th>
+                                    <th>Último Uso</th>
+                                    <th>Creado Por</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${keys.map(key => `
+                                    <tr>
+                                        <td>
+                                            <code class="api-key">${key.key}</code>
+                                            <button class="btn btn-sm btn-outline-secondary ms-2" onclick="copyToClipboard('${key.key}')">
+                                                <i class="fas fa-copy"></i>
+                                            </button>
+                                        </td>
+                                        <td>${key.description || 'Sin descripción'}</td>
+                                        <td>
+                                            <span class="status-badge ${key.is_expired ? 'status-expired' : 'status-active'}">
+                                                ${key.is_expired ? 'Expirada' : 'Activa'}
+                                            </span>
+                                        </td>
+                                        <td>${key.expires_at_formatted}</td>
+                                        <td>
+                                            <span class="badge bg-info">${key.usage_count}</span>
+                                        </td>
+                                        <td>${key.last_used_formatted}</td>
+                                        <td>${key.created_by}</td>
+                                        <td>
+                                            <button class="btn btn-sm btn-danger" onclick="deleteKey(${key.id})">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    </div>
+                `}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para generar API Key -->
+<div class="modal fade" id="generateModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-plus me-2"></i>Generar Nueva API Key
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="generateForm">
+                    <div class="mb-3">
+                        <label for="description" class="form-label">Descripción</label>
+                        <input type="text" class="form-control" id="description" name="description" 
+                               placeholder="Ej: Cliente Premium - 24 horas">
+                    </div>
+                    <div class="mb-3">
+                        <label for="minutes" class="form-label">Duración (minutos)</label>
+                        <select class="form-select" id="minutes" name="minutes">
+                            <option value="30">30 minutos</option>
+                            <option value="60" selected>1 hora</option>
+                            <option value="240">4 horas</option>
+                            <option value="480">8 horas</option>
+                            <option value="1440">24 horas</option>
+                            <option value="10080">7 días</option>
+                            <option value="43200">30 días</option>
+                        </select>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary" onclick="generateKey()">
+                    <i class="fas fa-key me-2"></i>Generar Key
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para mostrar API Key generada -->
+<div class="modal fade" id="keyModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-check-circle me-2 text-success"></i>API Key Generada
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-success">
+                    <i class="fas fa-info-circle me-2"></i>
+                    La API Key se ha generado exitosamente
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">API Key:</label>
+                    <div class="input-group">
+                        <input type="text" class="form-control" id="generatedKey" readonly>
+                        <button class="btn btn-outline-secondary" type="button" onclick="copyToClipboard(document.getElementById('generatedKey').value)">
+                            <i class="fas fa-copy"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">URL de ejemplo:</label>
+                    <input type="text" class="form-control" id="exampleUrl" readonly>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+`;
+%>
+
+<%- include('layout', { title, body, user }) %>
+
+<script>
+function generateKey() {
+    const form = document.getElementById('generateForm');
+    const formData = new FormData(form);
+    
+    fetch('/api-keys/${server}/generate', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            document.getElementById('generatedKey').value = data.key;
+            document.getElementById('exampleUrl').value = '${serverInfo.url}/?dni=12345678&key=' + data.key;
+            
+            // Cerrar modal de generación y abrir modal de resultado
+            const generateModal = bootstrap.Modal.getInstance(document.getElementById('generateModal'));
+            generateModal.hide();
+            
+            const keyModal = new bootstrap.Modal(document.getElementById('keyModal'));
+            keyModal.show();
+            
+            // Recargar página después de cerrar el modal
+            document.getElementById('keyModal').addEventListener('hidden.bs.modal', function() {
+                location.reload();
+            });
+        } else {
+            alert('Error: ' + data.error);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Error generando API Key');
+    });
+}
+
+function deleteKey(keyId) {
+    if (confirm('¿Estás seguro de que quieres eliminar esta API Key?')) {
+        fetch('/api-keys/${server}/' + keyId, {
+            method: 'DELETE'
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                location.reload();
+            } else {
+                alert('Error: ' + data.error);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Error eliminando API Key');
+        });
+    }
+}
+
+function copyToClipboard(text) {
+    navigator.clipboard.writeText(text).then(function() {
+        // Mostrar notificación de éxito
+        const btn = event.target.closest('button');
+        const originalHTML = btn.innerHTML;
+        btn.innerHTML = '<i class="fas fa-check"></i>';
+        btn.classList.add('btn-success');
+        btn.classList.remove('btn-outline-secondary');
+        
+        setTimeout(() => {
+            btn.innerHTML = originalHTML;
+            btn.classList.remove('btn-success');
+            btn.classList.add('btn-outline-secondary');
+        }, 2000);
+    });
+}
+</script>

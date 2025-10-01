@@ -1,0 +1,150 @@
+<%
+const title = 'Gestión de Usuarios';
+const body = `
+<div class="row">
+    <div class="col-12">
+        <div class="card mb-4">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h5 class="card-title mb-1">
+                            <i class="fas fa-users me-2"></i>Usuarios Administradores
+                        </h5>
+                        <p class="card-text text-muted">Gestiona los usuarios que pueden acceder al panel</p>
+                    </div>
+                    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addUserModal">
+                        <i class="fas fa-user-plus me-2"></i>Agregar Usuario
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body">
+                <h6 class="card-title mb-3">Lista de Usuarios</h6>
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Usuario</th>
+                                <th>Fecha de Creación</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${users.map(user => `
+                                <tr>
+                                    <td>${user.id}</td>
+                                    <td>
+                                        <i class="fas fa-user me-2"></i>${user.username}
+                                        ${user.username === 'zGatoO' ? '<span class="badge bg-primary ms-2">Principal</span>' : ''}
+                                    </td>
+                                    <td>${user.created_at_formatted}</td>
+                                    <td>
+                                        ${user.username === 'zGatoO' ? 
+                                            '<span class="text-muted">No se puede eliminar</span>' :
+                                            `<button class="btn btn-sm btn-danger" onclick="deleteUser(${user.id})">
+                                                <i class="fas fa-trash"></i>
+                                            </button>`
+                                        }
+                                    </td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para agregar usuario -->
+<div class="modal fade" id="addUserModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-user-plus me-2"></i>Agregar Nuevo Usuario
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="addUserForm">
+                    <div class="mb-3">
+                        <label for="username" class="form-label">Nombre de Usuario</label>
+                        <input type="text" class="form-control" id="username" name="username" required
+                               placeholder="Ej: admin2">
+                    </div>
+                    <div class="mb-3">
+                        <label for="password" class="form-label">Contraseña</label>
+                        <input type="password" class="form-control" id="password" name="password" required
+                               placeholder="Mínimo 6 caracteres">
+                    </div>
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>
+                        El usuario podrá acceder al panel y gestionar API Keys
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary" onclick="addUser()">
+                    <i class="fas fa-user-plus me-2"></i>Agregar Usuario
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+`;
+%>
+
+<%- include('layout', { title, body, user }) %>
+
+<script>
+function addUser() {
+    const form = document.getElementById('addUserForm');
+    const formData = new FormData(form);
+    
+    fetch('/users', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            location.reload();
+        } else {
+            alert('Error: ' + data.error);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Error agregando usuario');
+    });
+}
+
+function deleteUser(userId) {
+    if (confirm('¿Estás seguro de que quieres eliminar este usuario?')) {
+        fetch('/users/' + userId, {
+            method: 'DELETE'
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                location.reload();
+            } else {
+                alert('Error: ' + data.error);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Error eliminando usuario');
+        });
+    }
+}
+</script>
