@@ -101,6 +101,11 @@ const API_SERVERS = {
         name: 'Árbol Genealógico',
         url: 'https://zgatooarg.up.railway.app',
         color: '#27ae60'
+    },
+    'busqueda-nombres': {
+        name: 'Búsqueda por Nombres',
+        url: 'https://zgatoonm.up.railway.app',
+        color: '#9b59b6'
     }
 };
 
@@ -347,6 +352,9 @@ app.post('/api-keys/:server/generate', requireAuth, async (req, res) => {
                 break;
             case 'arbol-genealogico':
                 exampleUrl = `${API_SERVERS[server].url}/ag?dni=12345678&key=${apiKey}`;
+                break;
+            case 'busqueda-nombres':
+                exampleUrl = `${API_SERVERS[server].url}/nm?nombres=LUIS|MIGUEL&apellidos=QUISPE|MARTINEZ&key=${apiKey}`;
                 break;
             default:
                 exampleUrl = `${API_SERVERS[server].url}/?dni=12345678&key=${apiKey}`;
