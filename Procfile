@@ -1,1 +1,1 @@
-web: node server-postgres.js
+web: chmod +x start.sh && ./start.sh

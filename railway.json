@@ -3,7 +3,7 @@
     "builder": "NIXPACKS"
   },
   "deploy": {
-    "startCommand": "node server.js",
+    "startCommand": "node server-postgres.js",
     "healthcheckPath": "/login",
     "healthcheckTimeout": 10
   }
