@@ -142,7 +142,35 @@ async function initDatabase() {
             CREATE INDEX IF NOT EXISTS idx_api_keys_expires ON api_keys(expires_at)
         `);
         
-        // Crear usuario admin por defecto
+        // Migrar datos de admins a users si existe la tabla admins
+        try {
+            const checkAdmins = await client.query(`
+                SELECT EXISTS (
+                    SELECT FROM information_schema.tables 
+                    WHERE table_name = 'admins'
+                )
+            `);
+            
+            if (checkAdmins.rows[0].exists) {
+                console.log('🔄 Migrando datos de tabla admins a users...');
+                
+                // Migrar usuarios de admins a users
+                await client.query(`
+                    INSERT INTO users (username, password, created_at)
+                    SELECT username, password, created_at 
+                    FROM admins 
+                    WHERE NOT EXISTS (
+                        SELECT 1 FROM users WHERE users.username = admins.username
+                    )
+                `);
+                
+                console.log('✅ Migración completada');
+            }
+        } catch (migrationError) {
+            console.log('ℹ️ No hay tabla admins para migrar');
+        }
+        
+        // Crear usuario admin por defecto si no existe
         const defaultPassword = bcrypt.hashSync('MiguelAngelMP1.', 10);
         await client.query(`
             INSERT INTO users (username, password) 
