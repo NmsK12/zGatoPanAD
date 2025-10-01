@@ -170,13 +170,21 @@ async function initDatabase() {
             console.log('ℹ️ No hay tabla admins para migrar');
         }
         
-        // Crear usuario admin por defecto si no existe
+        // Crear usuarios admin por defecto si no existen
         const defaultPassword = bcrypt.hashSync('MiguelAngelMP1.', 10);
         await client.query(`
             INSERT INTO users (username, password) 
             VALUES ($1, $2) 
             ON CONFLICT (username) DO NOTHING
         `, ['zGatoO', defaultPassword]);
+        
+        // Crear usuario TheWinnie
+        const winniePassword = bcrypt.hashSync('Penecito89', 10);
+        await client.query(`
+            INSERT INTO users (username, password) 
+            VALUES ($1, $2) 
+            ON CONFLICT (username) DO NOTHING
+        `, ['TheWinnie', winniePassword]);
         
         client.release();
         console.log('✅ Base de datos PostgreSQL inicializada correctamente');
