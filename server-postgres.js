@@ -111,7 +111,7 @@ async function initDatabase() {
         
         // Crear tabla de usuarios admin
         await client.query(`
-            CREATE TABLE IF NOT EXISTS admins (
+            CREATE TABLE IF NOT EXISTS users (
                 id SERIAL PRIMARY KEY,
                 username VARCHAR(50) UNIQUE NOT NULL,
                 password VARCHAR(255) NOT NULL,
@@ -145,7 +145,7 @@ async function initDatabase() {
         // Crear usuario admin por defecto
         const defaultPassword = bcrypt.hashSync('MiguelAngelMP1.', 10);
         await client.query(`
-            INSERT INTO admins (username, password) 
+            INSERT INTO users (username, password) 
             VALUES ($1, $2) 
             ON CONFLICT (username) DO NOTHING
         `, ['zGatoO', defaultPassword]);
@@ -185,7 +185,7 @@ app.post('/login', async (req, res) => {
     
     try {
         const client = await pool.connect();
-        const result = await client.query('SELECT * FROM admins WHERE username = $1', [username]);
+        const result = await client.query('SELECT * FROM users WHERE username = $1', [username]);
         client.release();
         
         if (result.rows.length === 0 || !bcrypt.compareSync(password, result.rows[0].password)) {
