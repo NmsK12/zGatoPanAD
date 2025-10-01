@@ -110,11 +110,25 @@ function addUser() {
     const form = document.getElementById('addUserForm');
     const formData = new FormData(form);
     
+    // Convertir FormData a objeto JSON
+    const data = {
+        username: formData.get('username'),
+        password: formData.get('password')
+    };
+    
+    console.log('Enviando datos:', data);
+    
     fetch('/users', {
         method: 'POST',
-        body: formData
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(data)
     })
-    .then(response => response.json())
+    .then(response => {
+        console.log('Respuesta del servidor:', response.status);
+        return response.json();
+    })
     .then(data => {
         if (data.success) {
             location.reload();

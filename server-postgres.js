@@ -343,8 +343,22 @@ app.get('/users', requireAuth, async (req, res) => {
 app.post('/users', requireAuth, async (req, res) => {
     const { username, password } = req.body;
     
+    console.log('Creando usuario:', { username, password: password ? '***' : 'undefined' });
+    console.log('Body completo:', req.body);
+    
     if (!username || !password) {
+        console.log('Error: Usuario o contraseña faltantes');
         return res.status(400).json({ error: 'Usuario y contraseña son requeridos' });
+    }
+    
+    if (username.length < 3) {
+        console.log('Error: Usuario muy corto');
+        return res.status(400).json({ error: 'El nombre de usuario debe tener al menos 3 caracteres' });
+    }
+    
+    if (password.length < 6) {
+        console.log('Error: Contraseña muy corta');
+        return res.status(400).json({ error: 'La contraseña debe tener al menos 6 caracteres' });
     }
     
     try {
@@ -356,14 +370,15 @@ app.post('/users', requireAuth, async (req, res) => {
         `, [username, hashedPassword]);
         client.release();
         
+        console.log('Usuario creado exitosamente:', username);
         res.json({ success: true });
         
     } catch (error) {
+        console.error('Error creando usuario:', error);
         if (error.code === '23505') { // Unique violation
             res.status(400).json({ error: 'El usuario ya existe' });
         } else {
-            console.error('Error creando usuario:', error);
-            res.status(500).json({ error: 'Error creando usuario' });
+            res.status(500).json({ error: 'Error creando usuario: ' + error.message });
         }
     }
 });
