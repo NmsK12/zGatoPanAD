@@ -28,22 +28,22 @@ app.use(session({
 const API_SERVERS = {
     'dni-basico': {
         name: 'DNI Básico',
-        url: process.env.DNI_BASICO_URL || 'https://zgatoo1.up.railway.app',
+        url: process.env.DNI_BASICO_URL || 'https://zgatoodni.up.railway.app',
         color: '#3498db'
     },
     'dni-detallado': {
         name: 'DNI Detallado', 
-        url: process.env.DNI_DETALLADO_URL || 'https://zgatoo2.up.railway.app',
+        url: process.env.DNI_DETALLADO_URL || 'https://zgatoodnit.up.railway.app',
         color: '#e74c3c'
     },
     'certificados': {
         name: 'Certificados',
-        url: process.env.CERTIFICADOS_URL || 'https://zgatoo3.up.railway.app',
+        url: process.env.CERTIFICADOS_URL || 'https://zgatoocert.up.railway.app',
         color: '#f39c12'
     },
     'arbol-genealogico': {
         name: 'Árbol Genealógico',
-        url: process.env.ARBOL_URL || 'https://zgatoo4.up.railway.app',
+        url: process.env.ARBOL_URL || 'https://zgatooarg.up.railway.app',
         color: '#27ae60'
     }
 };
@@ -172,35 +172,50 @@ app.get('/api-keys/:server', requireAuth, (req, res) => {
 });
 
 app.post('/api-keys/:server/generate', requireAuth, (req, res) => {
-    const server = req.params.server;
-    const { minutes, description } = req.body;
-    
-    if (!API_SERVERS[server]) {
-        return res.status(404).json({ error: 'Servidor no encontrado' });
-    }
-    
-    // Generar API Key
-    const apiKey = require('crypto').randomBytes(16).toString('hex');
-    const expiresAt = new Date(Date.now() + (minutes * 60 * 1000));
-    
-    db.run(`INSERT INTO api_keys (server, key, description, expires_at, created_by) 
-            VALUES (?, ?, ?, ?, ?)`,
-        [server, apiKey, description, expiresAt.toISOString(), req.session.username],
-        function(err) {
-            if (err) {
-                return res.status(500).json({ error: 'Error creando API Key' });
-            }
-            
-            // Generar URL de ejemplo
-            const exampleUrl = `${API_SERVERS[server].url}/?dni=12345678&key=${apiKey}`;
-            
-            res.json({ 
-                success: true, 
-                key: apiKey,
-                expires_at: expiresAt.toISOString(),
-                example_url: exampleUrl
+    try {
+        const server = req.params.server;
+        const { minutes, description } = req.body;
+        
+        console.log(`Generando API Key para servidor: ${server}`);
+        console.log(`Minutos: ${minutes}, Descripción: ${description}`);
+        
+        if (!API_SERVERS[server]) {
+            console.log(`Servidor no encontrado: ${server}`);
+            return res.status(404).json({ error: 'Servidor no encontrado' });
+        }
+        
+        // Generar API Key
+        const apiKey = require('crypto').randomBytes(16).toString('hex');
+        const expiresAt = new Date(Date.now() + (minutes * 60 * 1000));
+        
+        console.log(`API Key generada: ${apiKey}`);
+        console.log(`Expira en: ${expiresAt.toISOString()}`);
+        
+        db.run(`INSERT INTO api_keys (server, key, description, expires_at, created_by) 
+                VALUES (?, ?, ?, ?, ?)`,
+            [server, apiKey, description, expiresAt.toISOString(), req.session.username],
+            function(err) {
+                if (err) {
+                    console.error('Error en base de datos:', err);
+                    return res.status(500).json({ error: 'Error creando API Key: ' + err.message });
+                }
+                
+                // Generar URL de ejemplo
+                const exampleUrl = `${API_SERVERS[server].url}/?dni=12345678&key=${apiKey}`;
+                
+                console.log(`API Key creada exitosamente: ${apiKey}`);
+                
+                res.json({ 
+                    success: true, 
+                    key: apiKey,
+                    expires_at: expiresAt.toISOString(),
+                    example_url: exampleUrl
+                });
             });
-        });
+    } catch (error) {
+        console.error('Error en generateKey:', error);
+        res.status(500).json({ error: 'Error interno del servidor: ' + error.message });
+    }
 });
 
 app.delete('/api-keys/:server/:keyId', requireAuth, (req, res) => {
@@ -278,6 +293,20 @@ app.delete('/users/:userId', requireAuth, (req, res) => {
         
         res.json({ success: true });
     });
+});
+
+// Middleware de manejo de errores
+app.use((err, req, res, next) => {
+    console.error('Error no manejado:', err);
+    res.status(500).json({ 
+        error: 'Error interno del servidor',
+        message: err.message 
+    });
+});
+
+// Manejo de rutas no encontradas
+app.use((req, res) => {
+    res.status(404).json({ error: 'Ruta no encontrada' });
 });
 
 app.listen(PORT, () => {
