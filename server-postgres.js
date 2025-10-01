@@ -31,6 +31,29 @@ async function syncKeyToAPI(serverKey, apiKey, description, expiresAt) {
     }
 }
 
+// Función para sincronizar eliminación de API Key con la API correspondiente
+async function syncKeyDeletionToAPI(serverKey, apiKey) {
+    try {
+        const apiUrl = API_SERVERS[serverKey].url;
+        console.log(`🗑️ Eliminando key ${apiKey} de ${serverKey}...`);
+        
+        const response = await axios.post(`${apiUrl}/delete-key`, {
+            key: apiKey
+        }, {
+            timeout: 10000
+        });
+        
+        if (response.data.success) {
+            console.log(`✅ Key eliminada exitosamente de ${serverKey}`);
+        } else {
+            console.log(`❌ Error eliminando de ${serverKey}: ${response.data.error}`);
+        }
+        
+    } catch (error) {
+        console.log(`❌ Error conectando a ${serverKey} para eliminación: ${error.message}`);
+    }
+}
+
 const app = express();
 const PORT = process.env.PORT || 3000;
 
@@ -300,6 +323,21 @@ app.delete('/api-keys/:server/:keyId', requireAuth, async (req, res) => {
     
     try {
         const client = await pool.connect();
+        
+        // Primero obtener la API Key antes de eliminarla
+        const keyResult = await client.query(`
+            SELECT key FROM api_keys 
+            WHERE id = $1 AND server = $2
+        `, [keyId, server]);
+        
+        if (keyResult.rows.length === 0) {
+            client.release();
+            return res.status(404).json({ error: 'API Key no encontrada' });
+        }
+        
+        const apiKey = keyResult.rows[0].key;
+        
+        // Eliminar de la base de datos del panel
         const result = await client.query(`
             DELETE FROM api_keys 
             WHERE id = $1 AND server = $2
@@ -309,6 +347,9 @@ app.delete('/api-keys/:server/:keyId', requireAuth, async (req, res) => {
         if (result.rowCount === 0) {
             return res.status(404).json({ error: 'API Key no encontrada' });
         }
+        
+        // Sincronizar eliminación con el servidor correspondiente
+        syncKeyDeletionToAPI(server, apiKey);
         
         res.json({ success: true });
         
