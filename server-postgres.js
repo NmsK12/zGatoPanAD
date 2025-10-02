@@ -411,7 +411,7 @@ app.post('/api-keys/:server/generate', requireAuth, async (req, res) => {
                 exampleUrl = `${API_SERVERS[server].url}/ag?dni=12345678&key=${apiKey}`;
                 break;
             case 'busqueda-nombres':
-                exampleUrl = `${API_SERVERS[server].url}/nm?nombres=LUIS|MIGUEL&apellidos=QUISPE|MARTINEZ&key=${apiKey}`;
+                exampleUrl = `${API_SERVERS[server].url}/nm?nombres=PEDRO&apellidos=CASTILLO|TERRONES&key=${apiKey}`;
                 break;
             default:
                 exampleUrl = `${API_SERVERS[server].url}/?dni=12345678&key=${apiKey}`;
