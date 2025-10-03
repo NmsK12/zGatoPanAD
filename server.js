@@ -5,6 +5,7 @@ const { Pool } = require('pg');
 const path = require('path');
 const axios = require('axios');
 const moment = require('moment');
+const expressLayouts = require('express-ejs-layouts');
 
 // Configuración de la aplicación
 const app = express();
@@ -13,6 +14,10 @@ const PORT = process.env.PORT || 3000;
 // Configurar EJS como motor de plantillas
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
+
+// Usar express-ejs-layouts
+app.use(expressLayouts);
+app.set('layout', 'layout');
 
 // Middleware
 app.use(express.json());
