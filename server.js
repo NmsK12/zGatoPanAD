@@ -385,13 +385,19 @@ app.post('/api-keys/:server/generate', requireAuth, async (req, res) => {
     const { server } = req.params;
     const { description, timeValue, timeUnit } = req.body;
     
+    console.log(`🔑 Generando API key para servidor: ${server}`);
+    console.log(`📝 Descripción: ${description}`);
+    console.log(`⏰ Tiempo: ${timeValue} ${timeUnit}`);
+    
     if (!API_SERVERS[server]) {
+        console.log(`❌ Servidor no encontrado: ${server}`);
         return res.status(404).json({ error: 'Servidor no encontrado' });
     }
     
     try {
         // Generar API key
         const apiKey = require('crypto').randomBytes(32).toString('hex');
+        console.log(`🔑 API Key generada: ${apiKey.substring(0, 8)}...`);
         
         // Calcular tiempo de expiración
         const timeValueNum = parseInt(timeValue);
@@ -418,11 +424,15 @@ app.post('/api-keys/:server/generate', requireAuth, async (req, res) => {
         const client = await pool.connect();
         const dbServerName = API_SERVERS[server].dbName;
         
+        console.log(`💾 Insertando en admin panel DB - servidor: ${dbServerName}`);
+        
         // Insertar en la base de datos del panel
         await client.query(`
             INSERT INTO api_keys (server, key, description, expires_at, created_by)
             VALUES ($1, $2, $3, $4, $5)
         `, [dbServerName, apiKey, description, expiresAt, req.session.username]);
+        
+        console.log(`✅ API key insertada en admin panel DB`);
         
         client.release();
         
