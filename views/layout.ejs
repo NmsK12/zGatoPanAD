@@ -273,9 +273,141 @@
             background: #7c3aed;
             transform: scale(1.1);
         }
+        
+        /* FORZAR TEMA HACKER - CSS con máxima prioridad */
+        body, html {
+            background: #000000 !important;
+            color: #ffffff !important;
+        }
+        
+        .theme-hacker {
+            background: #000000 !important;
+            color: #e6e6ff !important;
+        }
+        
+        .theme-hacker .card,
+        .theme-hacker .row,
+        .theme-hacker .table,
+        .theme-hacker .navbar,
+        .theme-hacker .modal-content,
+        .theme-hacker .container,
+        .theme-hacker .container-fluid {
+            background: linear-gradient(180deg, #0b0712, #0f0b1a) !important;
+            color: #e6e6ff !important;
+            border: 1px solid rgba(138,75,255,0.2) !important;
+        }
+        
+        .row, .fila, .card, .server-row, .container, .container-fluid {
+            background: linear-gradient(180deg, #07070b 0%, #0f0b1a 100%) !important;
+            color: #e6e6ff !important;
+            border: 1px solid rgba(255,255,255,0.06) !important;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.6) !important;
+        }
+        
+        .card-header, .card-body, .card-footer {
+            background: linear-gradient(180deg, rgba(12,10,20,0.9), rgba(6,4,12,0.85)) !important;
+            color: #e6e6ff !important;
+            border-color: rgba(138,75,255,0.08) !important;
+        }
+        
+        .table, .table-dark, .table tbody tr, .table thead th {
+            background: #0b0712 !important;
+            color: #e6e6ff !important;
+            border-color: rgba(138,75,255,0.08) !important;
+        }
+        
+        .form-control, .form-select, .form-label {
+            background: #0b0712 !important;
+            color: #e6e6ff !important;
+            border-color: rgba(138,75,255,0.08) !important;
+        }
+        
+        .btn, .btn-primary, .btn-secondary, .btn-danger {
+            background: linear-gradient(90deg, #8a4bff, #5b1bff) !important;
+            color: white !important;
+            border: none !important;
+        }
+        
+        .btn-danger {
+            background: linear-gradient(90deg, #ef4444, #dc2626) !important;
+        }
+        
+        .navbar, .navbar-brand, .navbar-nav .nav-link {
+            background: #0b0712 !important;
+            color: #e6e6ff !important;
+        }
+        
+        .sidebar, .sidebar .nav-link {
+            background: linear-gradient(135deg, #000000 0%, #1a1a1a 100%) !important;
+            color: #a1a1aa !important;
+        }
+        
+        .sidebar .nav-link:hover, .sidebar .nav-link.active {
+            background: rgba(139, 92, 246, 0.2) !important;
+            color: #ffffff !important;
+        }
+        
+        .modal-content, .modal-header, .modal-body, .modal-footer {
+            background: #0b0712 !important;
+            color: #e6e6ff !important;
+            border-color: rgba(138,75,255,0.08) !important;
+        }
+        
+        .toast, .toast-header, .toast-body {
+            background: #0b0712 !important;
+            color: #e6e6ff !important;
+            border-color: rgba(138,75,255,0.08) !important;
+        }
+        
+        .alert, .alert-info, .alert-danger, .alert-success {
+            background: #0b0712 !important;
+            color: #e6e6ff !important;
+            border-color: rgba(138,75,255,0.08) !important;
+        }
+        
+        .badge, .badge.bg-success, .badge.bg-danger, .badge.bg-warning {
+            background: linear-gradient(90deg, #8a4bff, #5b1bff) !important;
+            color: white !important;
+        }
+        
+        .badge.bg-danger {
+            background: linear-gradient(90deg, #ef4444, #dc2626) !important;
+        }
+        
+        .badge.bg-warning {
+            background: linear-gradient(90deg, #f59e0b, #d97706) !important;
+        }
+        
+        /* Forzar todos los elementos a tema oscuro */
+        * {
+            box-sizing: border-box;
+        }
+        
+        .row *, .card *, .container *, .container-fluid * {
+            background: inherit !important;
+        }
+        
+        .row .small, .card .small, .text-muted {
+            color: rgba(230,230,255,0.75) !important;
+        }
+        
+        .neon-white {
+            color: #ffffff !important;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.3) !important;
+        }
+        
+        .neon-purple {
+            color: #8b5cf6 !important;
+            text-shadow: 0 0 10px rgba(139, 92, 246, 0.5) !important;
+        }
+        
+        .neon-cyan {
+            color: #06b6d4 !important;
+            text-shadow: 0 0 10px rgba(6, 182, 212, 0.5) !important;
+        }
     </style>
 </head>
-<body>
+<body class="theme-hacker">
     <div class="container-fluid">
         <div class="row">
             <!-- Sidebar -->
