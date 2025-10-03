@@ -842,8 +842,10 @@
             // Crear partículas de fondo
             createParticles();
             
-            // Mostrar animación de bienvenida
-            showWelcomeAnimation();
+            // Mostrar animación de bienvenida solo si es la primera vez después del login
+            if (shouldShowWelcome()) {
+                showWelcomeAnimation();
+            }
         });
         
         // Función para crear partículas de fondo
@@ -870,6 +872,20 @@
                 
                 particlesContainer.appendChild(particle);
             }
+        }
+        
+        // Función para verificar si debe mostrar la animación de bienvenida
+        function shouldShowWelcome() {
+            // Verificar si ya se mostró la animación en esta sesión
+            const welcomeShown = sessionStorage.getItem('welcomeShown');
+            
+            // Si no se ha mostrado, marcarlo como mostrado y devolver true
+            if (!welcomeShown) {
+                sessionStorage.setItem('welcomeShown', 'true');
+                return true;
+            }
+            
+            return false;
         }
         
         // Función para mostrar animación de bienvenida
