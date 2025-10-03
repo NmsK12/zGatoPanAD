@@ -479,7 +479,15 @@
                     </nav>
                     
                     <!-- Page Content -->
-                    <%- body %>
+                    <% if (body === 'dashboard') { %>
+                        <%- include('dashboard') %>
+                    <% } else if (body === 'api-keys') { %>
+                        <%- include('api-keys') %>
+                    <% } else if (body === 'users') { %>
+                        <%- include('users') %>
+                    <% } else { %>
+                        <%- body %>
+                    <% } %>
                 </div>
             </div>
         </div>

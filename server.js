@@ -15,9 +15,12 @@ const PORT = process.env.PORT || 3000;
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 
-// Usar express-ejs-layouts
-app.use(expressLayouts);
-app.set('layout', 'layout');
+// Configurar variables globales para el layout
+app.use((req, res, next) => {
+    res.locals.title = 'Panel Admin';
+    res.locals.username = req.session?.username || null;
+    next();
+});
 
 // Middleware
 app.use(express.json());
@@ -186,7 +189,7 @@ const requireAuth = (req, res, next) => {
         next();
     } else {
         // Si es una petición AJAX, devolver error 401
-        if (req.xhr || req.headers.accept.indexOf('json') > -1) {
+        if (req.xhr || (req.headers.accept && req.headers.accept.indexOf('json') > -1)) {
             return res.status(401).json({ error: 'No autorizado' });
         }
         // Si no es AJAX, redirigir al login
@@ -314,9 +317,10 @@ app.get('/dashboard', requireAuth, async (req, res) => {
         
         client.release();
         
-        res.render('dashboard', {
+        res.render('layout', {
             title: 'Dashboard',
             username: req.session.username,
+            body: 'dashboard',
             stats,
             totalUsers,
             servers: API_SERVERS
