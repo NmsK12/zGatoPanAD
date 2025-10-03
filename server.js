@@ -149,6 +149,7 @@ async function syncKeyToAPI(serverKey, apiKey, description, expiresAt) {
         console.log(`✅ Key ${apiKey} sincronizada con ${serverKey}`);
     } catch (error) {
         console.error(`❌ Error sincronizando key con ${serverKey}:`, error.message);
+        throw error; // Re-lanzar el error para que se maneje arriba
     }
 }
 
@@ -425,8 +426,12 @@ app.post('/api-keys/:server/generate', requireAuth, async (req, res) => {
         
         client.release();
         
-        // Sincronizar con la API correspondiente
-        await syncKeyToAPI(dbServerName, apiKey, description, expiresAt);
+        // Sincronizar con la API correspondiente (no crítico si falla)
+        try {
+            await syncKeyToAPI(dbServerName, apiKey, description, expiresAt);
+        } catch (syncError) {
+            console.error('Error en sincronización (no crítico):', syncError.message);
+        }
         
         res.json({ success: true, apiKey });
     } catch (error) {
