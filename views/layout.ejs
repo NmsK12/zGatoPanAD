@@ -579,11 +579,88 @@
             white-space: nowrap;
             animation: typing 3s steps(40, end), blink-caret 0.75s step-end infinite;
         }
+        
+        /* Animación de bienvenida */
+        @keyframes welcomeSlideIn {
+            0% {
+                opacity: 0;
+                transform: translateY(-50px) scale(0.8);
+            }
+            50% {
+                opacity: 1;
+                transform: translateY(0) scale(1.1);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+        
+        @keyframes welcomeGlow {
+            0%, 100% {
+                text-shadow: 0 0 20px rgba(138, 75, 255, 0.8);
+            }
+            50% {
+                text-shadow: 0 0 40px rgba(138, 75, 255, 1), 0 0 60px rgba(138, 75, 255, 0.8);
+            }
+        }
+        
+        .welcome-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(0, 0, 0, 0.95), rgba(11, 7, 18, 0.95));
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+        
+        .welcome-content {
+            text-align: center;
+            animation: welcomeSlideIn 2s ease-out;
+        }
+        
+        .welcome-title {
+            font-size: 4rem;
+            font-weight: bold;
+            color: #8a4bff;
+            margin-bottom: 1rem;
+            animation: welcomeGlow 2s ease-in-out infinite;
+        }
+        
+        .welcome-subtitle {
+            font-size: 1.5rem;
+            color: #e6e6ff;
+            margin-bottom: 2rem;
+        }
+        
+        .welcome-loading {
+            display: inline-block;
+            width: 40px;
+            height: 40px;
+            border: 4px solid rgba(138, 75, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: #8a4bff;
+            animation: spin 1s ease-in-out infinite;
+        }
     </style>
 </head>
 <body class="theme-hacker">
     <!-- Partículas de fondo -->
     <div class="particles" id="particles"></div>
+    
+    <!-- Animación de bienvenida -->
+    <div class="welcome-overlay" id="welcomeOverlay">
+        <div class="welcome-content">
+            <div class="welcome-title">BIENVENIDO</div>
+            <div class="welcome-subtitle" id="welcomeUsername">Cargando...</div>
+            <div class="welcome-loading"></div>
+        </div>
+    </div>
     
     <div class="container-fluid">
         <div class="row">
@@ -764,6 +841,9 @@
             
             // Crear partículas de fondo
             createParticles();
+            
+            // Mostrar animación de bienvenida
+            showWelcomeAnimation();
         });
         
         // Función para crear partículas de fondo
@@ -790,6 +870,28 @@
                 
                 particlesContainer.appendChild(particle);
             }
+        }
+        
+        // Función para mostrar animación de bienvenida
+        function showWelcomeAnimation() {
+            const welcomeOverlay = document.getElementById('welcomeOverlay');
+            const welcomeUsername = document.getElementById('welcomeUsername');
+            
+            // Obtener nombre de usuario del localStorage o de la sesión
+            const username = '<%= username || "Usuario" %>';
+            welcomeUsername.textContent = username.toUpperCase();
+            
+            // Mostrar animación por 3 segundos
+            setTimeout(() => {
+                welcomeOverlay.style.opacity = '0';
+                welcomeOverlay.style.transform = 'scale(0.8)';
+                welcomeOverlay.style.transition = 'all 0.5s ease-out';
+                
+                // Ocultar completamente después de la transición
+                setTimeout(() => {
+                    welcomeOverlay.style.display = 'none';
+                }, 500);
+            }, 3000);
         }
     </script>
 </body>

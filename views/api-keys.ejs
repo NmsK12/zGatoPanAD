@@ -144,7 +144,7 @@
                         <i class="fas fa-info-circle me-2"></i>
                         <strong>Ejemplo de uso:</strong><br>
                         <code class="neon-cyan">
-                            <%= serverInfo.url %>/<%= serverInfo.endpoint %>?dni=44443333&key=TU_API_KEY
+                            <%= serverInfo.url %>/<%= serverInfo.endpoint %>?<%= serverInfo.exampleParams %>&key=TU_API_KEY
                         </code>
                     </div>
                 </form>
@@ -257,7 +257,7 @@
                 <div class="mb-3">
                     <label class="form-label neon-white">
                         <i class="fas fa-link me-2"></i>
-                        Enlace de ejemplo (DNI: 44443333):
+                        Enlace de ejemplo:
                     </label>
                     <div class="input-group">
                         <input type="text" class="form-control" id="exampleUrl" readonly>
@@ -273,7 +273,7 @@
                     <ul class="mb-0 mt-2">
                         <li>Copia la API Key y guárdala en un lugar seguro</li>
                         <li>Usa el enlace de ejemplo como referencia para tus consultas</li>
-                        <li>Reemplaza "44443333" con el DNI que quieras consultar</li>
+                        <li>Modifica los parámetros según tus necesidades (DNI, nombres, etc.)</li>
                     </ul>
                 </div>
             </div>

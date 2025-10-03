@@ -59,36 +59,46 @@ const API_SERVERS = {
         name: '/dni',
         description: 'DNI Básico',
         url: 'https://zgatoodni.up.railway.app',
+        endpoint: 'dniresult',
         color: '#3498db',
-        dbName: 'dni-basico'
+        dbName: 'dni-basico',
+        exampleParams: 'dni=44443333'
     },
     'dnit': {
         name: '/dnit',
         description: 'DNI Detallado',
         url: 'https://zgatoodnit.up.railway.app',
+        endpoint: 'dnit',
         color: '#e74c3c',
-        dbName: 'dni-detallado'
+        dbName: 'dni-detallado',
+        exampleParams: 'dni=44443333'
     },
     'nombres': {
         name: '/nombres',
         description: 'Búsqueda por Nombres',
         url: 'https://zgatoonm.up.railway.app',
+        endpoint: 'nm',
         color: '#9b59b6',
-        dbName: 'busqueda-nombres'
+        dbName: 'busqueda-nombres',
+        exampleParams: 'nombres=PEDRO&apellidos=CASTILLO|TERRONES'
     },
     'certificados': {
         name: '/certificados',
         description: 'Certificados',
         url: 'https://zgatoocert.up.railway.app',
+        endpoint: 'antjud',
         color: '#f39c12',
-        dbName: 'certificados'
+        dbName: 'certificados',
+        exampleParams: 'dni=44443333'
     },
     'arbol': {
         name: '/arbol',
         description: 'Árbol Genealógico',
         url: 'https://zgatooarg.up.railway.app',
+        endpoint: 'arbol',
         color: '#9b59b6',
-        dbName: 'arbol-genealogico'
+        dbName: 'arbol-genealogico',
+        exampleParams: 'dni=44443333'
     }
 };
 
@@ -445,16 +455,16 @@ app.post('/api-keys/:server/generate', requireAuth, async (req, res) => {
         }
         
         // Generar enlace de ejemplo
-        const exampleDni = '44443333';
-        const exampleUrl = `https://${API_SERVERS[server].url}/${API_SERVERS[server].endpoint}?dni=${exampleDni}&key=${apiKey}`;
+        const serverConfig = API_SERVERS[server];
+        const exampleUrl = `${serverConfig.url}/${serverConfig.endpoint}?${serverConfig.exampleParams}&key=${apiKey}`;
         
         res.json({ 
             success: true, 
             apiKey: apiKey,
             exampleUrl: exampleUrl,
-            exampleDni: exampleDni,
-            serverUrl: `https://${API_SERVERS[server].url}`,
-            endpoint: API_SERVERS[server].endpoint
+            serverUrl: serverConfig.url,
+            endpoint: serverConfig.endpoint,
+            exampleParams: serverConfig.exampleParams
         });
     } catch (error) {
         console.error('Error generando API key:', error);
