@@ -395,9 +395,10 @@ app.post('/api-keys/:server/generate', requireAuth, async (req, res) => {
     }
     
     try {
-        // Generar API key
-        const apiKey = require('crypto').randomBytes(32).toString('hex');
-        console.log(`🔑 API Key generada: ${apiKey.substring(0, 8)}...`);
+        // Generar API key (20-32 caracteres)
+        const keyLength = Math.floor(Math.random() * 13) + 20; // Entre 20 y 32 caracteres
+        const apiKey = require('crypto').randomBytes(Math.ceil(keyLength / 2)).toString('hex').substring(0, keyLength);
+        console.log(`🔑 API Key generada (${keyLength} chars): ${apiKey.substring(0, 8)}...`);
         
         // Calcular tiempo de expiración
         const timeValueNum = parseInt(timeValue);
