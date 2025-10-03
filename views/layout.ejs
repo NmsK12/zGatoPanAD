@@ -617,6 +617,14 @@
             align-items: center;
             z-index: 9999;
             animation: fadeIn 0.5s ease-in-out;
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        .welcome-overlay.hidden {
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease-out;
         }
         
         .welcome-content {
@@ -649,6 +657,7 @@
         <div class="welcome-content">
             <div class="welcome-title">BIENVENIDO</div>
             <div class="welcome-subtitle" id="welcomeUsername">USUARIO</div>
+            <button onclick="hideWelcome()" style="margin-top: 20px; padding: 10px 20px; background: #8a4bff; color: white; border: none; border-radius: 5px; cursor: pointer;">Continuar</button>
         </div>
     </div>
     
@@ -887,20 +896,24 @@
             const username = '<%= username || "Usuario" %>';
             welcomeUsername.textContent = username.toUpperCase();
             
-            // Duración fija de 1.5 segundos (más rápido)
-            const duration = 1500;
+            // Duración fija de 1 segundo (más rápido)
+            const duration = 1000;
             
             // Mostrar animación por tiempo fijo
             setTimeout(() => {
-                welcomeOverlay.style.opacity = '0';
-                welcomeOverlay.style.transform = 'scale(0.8)';
-                welcomeOverlay.style.transition = 'all 0.3s ease-out';
-                
-                // Ocultar completamente después de la transición
-                setTimeout(() => {
-                    welcomeOverlay.style.display = 'none';
-                }, 300);
+                hideWelcome();
             }, duration);
+        }
+        
+        // Función para ocultar el mensaje de bienvenida
+        function hideWelcome() {
+            const welcomeOverlay = document.getElementById('welcomeOverlay');
+            welcomeOverlay.classList.add('hidden');
+            
+            // Ocultar completamente después de la transición
+            setTimeout(() => {
+                welcomeOverlay.style.display = 'none';
+            }, 300);
         }
     </script>
 </body>
