@@ -366,9 +366,10 @@ app.get('/api-keys/:server', requireAuth, async (req, res) => {
         
         client.release();
         
-        res.render('api-keys', {
+        res.render('layout', {
             title: `API Keys - ${API_SERVERS[server].description}`,
             username: req.session.username,
+            body: 'api-keys',
             server: server,
             serverInfo: API_SERVERS[server],
             keys
@@ -485,9 +486,10 @@ app.get('/users', requireAuth, async (req, res) => {
         );
         client.release();
         
-        res.render('users', {
+        res.render('layout', {
             title: 'Usuarios',
             username: req.session.username,
+            body: 'users',
             users: result.rows
         });
     } catch (error) {
