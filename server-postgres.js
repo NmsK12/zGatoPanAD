@@ -31,13 +31,13 @@ async function syncKeyToAPI(serverKey, apiKey, description, expiresAt) {
     try {
         console.log(`🔄 Sincronizando key ${apiKey} con ${serverKey}...`);
         
-        // URLs de PostgreSQL para cada servidor
+        // URLs de PostgreSQL para cada servidor (usando nombres de base de datos)
         const DATABASE_URLS = {
-            'dni': 'postgresql://postgres:obhVnLxfoSFQDRtwtSBPayWfuFxGUGFx@yamabiko.proxy.rlwy.net:25975/railway',
-            'dnit': 'postgresql://postgres:KtvWiXujOvJYKfgJPMHxGntBaDYHPAXg@yamabiko.proxy.rlwy.net:27118/railway',
-            'nombres': 'postgresql://postgres:yrgxHVIPjGFTNBQXTLiDltHAzFkaNCUr@gondola.proxy.rlwy.net:49761/railway',
+            'dni-basico': 'postgresql://postgres:obhVnLxfoSFQDRtwtSBPayWfuFxGUGFx@yamabiko.proxy.rlwy.net:25975/railway',
+            'dni-detallado': 'postgresql://postgres:KtvWiXujOvJYKfgJPMHxGntBaDYHPAXg@yamabiko.proxy.rlwy.net:27118/railway',
+            'busqueda-nombres': 'postgresql://postgres:yrgxHVIPjGFTNBQXTLiDltHAzFkaNCUr@gondola.proxy.rlwy.net:49761/railway',
             'certificados': 'postgresql://postgres:HwTdcvNsmJyRlcExdwNbjInngGAAnJPA@ballast.proxy.rlwy.net:28072/railway',
-            'arbol': 'postgresql://postgres:qzvXzemtXvpyZsqIMZaQJrMdmqvrgckT@crossover.proxy.rlwy.net:57036/railway'
+            'arbol-genealogico': 'postgresql://postgres:qzvXzemtXvpyZsqIMZaQJrMdmqvrgckT@crossover.proxy.rlwy.net:57036/railway'
         };
         
         const databaseUrl = DATABASE_URLS[serverKey];
@@ -132,31 +132,36 @@ const API_SERVERS = {
         name: '/dni',
         description: 'DNI Básico',
         url: 'https://zgatoodni.up.railway.app',
-        color: '#3498db'
+        color: '#3498db',
+        dbName: 'dni-basico' // Nombre en la base de datos
     },
     'dnit': {
         name: '/dnit',
         description: 'DNI Detallado',
         url: 'https://zgatoodnit.up.railway.app',
-        color: '#e74c3c'
+        color: '#e74c3c',
+        dbName: 'dni-detallado'
     },
     'nombres': {
         name: '/nombres',
         description: 'Búsqueda por Nombres',
         url: 'https://zgatoonm.up.railway.app',
-        color: '#9b59b6'
+        color: '#9b59b6',
+        dbName: 'busqueda-nombres'
     },
     'certificados': {
         name: '/certificados',
         description: 'Certificados',
         url: 'https://zgatoocert.up.railway.app',
-        color: '#f39c12'
+        color: '#f39c12',
+        dbName: 'certificados'
     },
     'arbol': {
         name: '/arbol',
         description: 'Árbol Genealógico',
         url: 'https://zgatooarg.up.railway.app',
-        color: '#9b59b6'
+        color: '#9b59b6',
+        dbName: 'arbol-genealogico'
     }
 };
 
@@ -335,6 +340,7 @@ app.get('/api-keys/:server', requireAuth, async (req, res) => {
     
     try {
         const client = await pool.connect();
+        const dbServerName = API_SERVERS[server].dbName; // Usar el nombre de la base de datos
         const result = await client.query(`
             SELECT *, 
                    CASE WHEN expires_at > NOW() THEN false ELSE true END as is_expired,
@@ -345,13 +351,13 @@ app.get('/api-keys/:server', requireAuth, async (req, res) => {
             FROM api_keys 
             WHERE server = $1 
             ORDER BY created_at DESC
-        `, [server]);
+        `, [dbServerName]);
         client.release();
         
         const apiKeys = result.rows.map(key => ({
             ...key,
             time_remaining_formatted: formatTimeRemaining(key.time_remaining_seconds || 0),
-            can_delete: key.created_by === req.session.username
+            can_delete: key.created_by === req.session.username || req.session.username === 'zGatoO'
         }));
         
         res.render('api-keys', { 
@@ -390,15 +396,16 @@ app.post('/api-keys/:server/generate', requireAuth, async (req, res) => {
         
         // Insertar en PostgreSQL del panel
         const client = await pool.connect();
+        const dbServerName = API_SERVERS[server].dbName; // Usar el nombre de la base de datos
         const result = await client.query(`
             INSERT INTO api_keys (server, key, description, expires_at, created_by) 
             VALUES ($1, $2, $3, $4, $5)
             RETURNING *
-        `, [server, apiKey, descriptionValue, expiresAt.toISOString(), req.session.username]);
+        `, [dbServerName, apiKey, descriptionValue, expiresAt.toISOString(), req.session.username]);
         client.release();
         
         // Sincronizar con el servidor correspondiente
-        await syncKeyToAPI(server, apiKey, descriptionValue, expiresAt.toISOString());
+        await syncKeyToAPI(dbServerName, apiKey, descriptionValue, expiresAt.toISOString());
         
         // Generar URL de ejemplo según el servidor
         let exampleUrl;
@@ -445,12 +452,13 @@ app.delete('/api-keys/:server/:keyId', requireAuth, async (req, res) => {
     
     try {
         const client = await pool.connect();
+        const dbServerName = API_SERVERS[server].dbName; // Usar el nombre de la base de datos
         
         // Primero obtener la API Key antes de eliminarla
         const keyResult = await client.query(`
             SELECT key FROM api_keys 
             WHERE id = $1 AND server = $2
-        `, [keyId, server]);
+        `, [keyId, dbServerName]);
         
         if (keyResult.rows.length === 0) {
             client.release();
@@ -463,7 +471,7 @@ app.delete('/api-keys/:server/:keyId', requireAuth, async (req, res) => {
         const result = await client.query(`
             DELETE FROM api_keys 
             WHERE id = $1 AND server = $2
-        `, [keyId, server]);
+        `, [keyId, dbServerName]);
         client.release();
         
         if (result.rowCount === 0) {
@@ -471,7 +479,7 @@ app.delete('/api-keys/:server/:keyId', requireAuth, async (req, res) => {
         }
         
         // Sincronizar eliminación con el servidor correspondiente
-        syncKeyDeletionToAPI(server, apiKey, req.session.username);
+        syncKeyDeletionToAPI(dbServerName, apiKey, req.session.username);
         
         res.json({ success: true });
         
