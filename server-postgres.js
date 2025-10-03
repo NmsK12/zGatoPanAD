@@ -260,6 +260,11 @@ const requireAuth = (req, res, next) => {
     if (req.session.userId) {
         next();
     } else {
+        // Si es una petición AJAX, devolver error 401
+        if (req.xhr || req.headers.accept.indexOf('json') > -1) {
+            return res.status(401).json({ error: 'No autorizado' });
+        }
+        // Si no es AJAX, redirigir al login
         res.redirect('/login');
     }
 };
