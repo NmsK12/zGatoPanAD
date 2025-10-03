@@ -1,16 +1,13 @@
-<%
-const title = `API Keys - ${serverInfo.name}`;
-const body = `
 <div class="row">
     <div class="col-12">
         <div class="card mb-4">
-            <div class="card-body">
+            <div class="card-header">
                 <div class="d-flex justify-content-between align-items-center">
                     <div>
-                        <h5 class="card-title mb-1">
+                        <h5 class="card-title mb-1 neon-white">
                             <i class="fas fa-key me-2"></i>Gestionar API Keys
                         </h5>
-                        <p class="card-text text-muted">${serverInfo.name} - ${serverInfo.url}</p>
+                        <p class="card-text neon-purple"><%= serverInfo.name %> - <%= serverInfo.url %></p>
                     </div>
                     <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#generateModal">
                         <i class="fas fa-plus me-2"></i>Generar Nueva Key
@@ -24,222 +21,200 @@ const body = `
 <div class="row">
     <div class="col-12">
         <div class="card">
+            <div class="card-header">
+                <h6 class="card-title mb-0 neon-white">API Keys Existentes</h6>
+            </div>
             <div class="card-body">
-                <h6 class="card-title mb-3">API Keys Existentes</h6>
-                ${keys.length === 0 ? `
+                <% if (keys.length === 0) { %>
                     <div class="text-center py-5">
-                        <i class="fas fa-key fa-3x text-muted mb-3"></i>
-                        <h6 class="text-muted">No hay API Keys generadas</h6>
-                        <p class="text-muted">Genera tu primera API Key para comenzar</p>
+                        <i class="fas fa-key fa-3x neon-purple mb-3"></i>
+                        <h6 class="neon-white">No hay API Keys generadas</h6>
+                        <p class="neon-purple">Genera tu primera API Key para comenzar</p>
                     </div>
-                ` : `
+                <% } else { %>
                     <div class="table-responsive">
-                        <table class="table table-hover">
+                        <table class="table table-dark table-hover">
                             <thead>
                                 <tr>
-                                    <th>API Key</th>
-                                    <th>Descripción</th>
-                                    <th>Estado</th>
-                                    <th>Expira</th>
-                                    <th>Usos</th>
-                                    <th>Último Uso</th>
-                                    <th>Creado Por</th>
-                                    <th>Acciones</th>
+                                    <th class="neon-white">API Key</th>
+                                    <th class="neon-white">Descripción</th>
+                                    <th class="neon-white">Estado</th>
+                                    <th class="neon-white">Tiempo Restante</th>
+                                    <th class="neon-white">Expira</th>
+                                    <th class="neon-white">Último Uso</th>
+                                    <th class="neon-white">Creado Por</th>
+                                    <th class="neon-white">Acciones</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                ${keys.map(key => `
+                                <% keys.forEach(key => { %>
                                     <tr>
                                         <td>
-                                            <code class="api-key">${key.key}</code>
-                                            <button class="btn btn-sm btn-outline-secondary ms-2" onclick="copyToClipboard('${key.key}')">
-                                                <i class="fas fa-copy"></i>
-                                            </button>
+                                            <code class="api-key"><%= key.key %></code>
                                         </td>
-                                        <td>${key.description || 'Sin descripción'}</td>
+                                        <td class="neon-white"><%= key.description || 'Sin descripción' %></td>
                                         <td>
-                                            <span class="status-badge ${key.is_expired ? 'status-expired' : 'status-active'}">
-                                                ${key.is_expired ? 'Expirada' : 'Activa'}
+                                            <span class="status-badge <%= key.is_expired ? 'status-expired' : 'status-active' %>">
+                                                <%= key.is_expired ? 'Expirada' : 'Activa' %>
                                             </span>
                                         </td>
-                                        <td>${key.expires_at_formatted}</td>
-                                        <td>
-                                            <span class="badge bg-info">${key.usage_count}</span>
+                                        <td class="neon-white" id="time-<%= key.id %>">
+                                            <%= key.time_remaining_formatted %>
                                         </td>
-                                        <td>${key.last_used_formatted}</td>
-                                        <td>${key.created_by}</td>
+                                        <td class="neon-white"><%= key.expires_at_formatted %></td>
+                                        <td class="neon-white"><%= key.last_used_formatted %></td>
+                                        <td class="neon-white"><%= key.created_by %></td>
                                         <td>
-                                            <button class="btn btn-sm btn-danger" onclick="deleteKey(${key.id})">
-                                                <i class="fas fa-trash"></i>
-                                            </button>
+                                            <% if (key.can_delete) { %>
+                                                <button class="btn btn-danger btn-sm" onclick="deleteKey('<%= key.id %>', '<%= key.key %>')">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            <% } else { %>
+                                                <span class="text-muted">Solo el creador</span>
+                                            <% } %>
                                         </td>
                                     </tr>
-                                `).join('')}
+                                <% }); %>
                             </tbody>
                         </table>
                     </div>
-                `}
+                <% } %>
             </div>
         </div>
     </div>
 </div>
 
-<!-- Modal para generar API Key -->
+<!-- Modal para generar nueva API Key -->
 <div class="modal fade" id="generateModal" tabindex="-1">
     <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">
-                    <i class="fas fa-plus me-2"></i>Generar Nueva API Key
-                </h5>
+        <div class="modal-content" style="background: var(--secondary-bg); border: 1px solid var(--border-color);">
+            <div class="modal-header" style="border-bottom: 1px solid var(--border-color);">
+                <h5 class="modal-title neon-white">Generar Nueva API Key</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
                 <form id="generateForm">
                     <div class="mb-3">
-                        <label for="description" class="form-label">Descripción</label>
+                        <label for="description" class="form-label neon-purple">Descripción</label>
                         <input type="text" class="form-control" id="description" name="description" 
-                               placeholder="Ej: Cliente Premium - 24 horas">
+                               placeholder="Ej: API Key para mi aplicación" required>
                     </div>
                     <div class="mb-3">
-                        <label for="minutes" class="form-label">Duración (minutos)</label>
-                        <select class="form-select" id="minutes" name="minutes">
-                            <option value="30">30 minutos</option>
-                            <option value="60" selected>1 hora</option>
-                            <option value="240">4 horas</option>
-                            <option value="480">8 horas</option>
-                            <option value="1440">24 horas</option>
-                            <option value="10080">7 días</option>
-                            <option value="43200">30 días</option>
+                        <label for="timeType" class="form-label neon-purple">Tiempo</label>
+                        <select class="form-select" id="timeType" name="timeType" onchange="updateTimeOptions()">
+                            <option value="minutes">Minutos</option>
+                            <option value="hours" selected>Horas</option>
+                            <option value="days">Días</option>
+                            <option value="months">Meses</option>
+                            <option value="years">Años</option>
                         </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="timeValue" class="form-label neon-purple">Temporizador</label>
+                        <input type="number" class="form-control" id="timeValue" name="timeValue" 
+                               placeholder="Ingresa la cantidad" min="1" value="1" required>
                     </div>
                 </form>
             </div>
-            <div class="modal-footer">
+            <div class="modal-footer" style="border-top: 1px solid var(--border-color);">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                <button type="button" class="btn btn-primary" onclick="generateKey()">
-                    <i class="fas fa-key me-2"></i>Generar Key
-                </button>
+                <button type="button" class="btn btn-primary" onclick="generateKey()">Generar Key</button>
             </div>
         </div>
     </div>
 </div>
-
-<!-- Modal para mostrar API Key generada -->
-<div class="modal fade" id="keyModal" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">
-                    <i class="fas fa-check-circle me-2 text-success"></i>API Key Generada
-                </h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body">
-                <div class="alert alert-success">
-                    <i class="fas fa-info-circle me-2"></i>
-                    La API Key se ha generado exitosamente
-                </div>
-                <div class="mb-3">
-                    <label class="form-label">API Key:</label>
-                    <div class="input-group">
-                        <input type="text" class="form-control" id="generatedKey" readonly>
-                        <button class="btn btn-outline-secondary" type="button" onclick="copyToClipboard(document.getElementById('generatedKey').value)">
-                            <i class="fas fa-copy"></i>
-                        </button>
-                    </div>
-                </div>
-                <div class="mb-3">
-                    <label class="form-label">URL de ejemplo:</label>
-                    <div class="input-group">
-                        <input type="text" class="form-control" id="exampleUrl" readonly>
-                        <button class="btn btn-outline-secondary" type="button" onclick="copyToClipboard(document.getElementById('exampleUrl').value)">
-                            <i class="fas fa-copy"></i>
-                        </button>
-                    </div>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Cerrar</button>
-            </div>
-        </div>
-    </div>
-</div>
-`;
-%>
-
-<%- include('layout', { title, body, user }) %>
 
 <script>
+function updateTimeOptions() {
+    const timeType = document.getElementById('timeType').value;
+    const timeValue = document.getElementById('timeValue');
+    
+    switch(timeType) {
+        case 'minutes':
+            timeValue.placeholder = 'Ingresa los minutos (ej: 30)';
+            break;
+        case 'hours':
+            timeValue.placeholder = 'Ingresa las horas (ej: 2)';
+            break;
+        case 'days':
+            timeValue.placeholder = 'Ingresa los días (ej: 7)';
+            break;
+        case 'months':
+            timeValue.placeholder = 'Ingresa los meses (ej: 1)';
+            break;
+        case 'years':
+            timeValue.placeholder = 'Ingresa los años (ej: 1)';
+            break;
+    }
+}
+
 function generateKey() {
     const form = document.getElementById('generateForm');
     const formData = new FormData(form);
     
-    fetch('/api-keys/<%= server %>/generate', {
+    const data = {
+        description: formData.get('description'),
+        timeType: formData.get('timeType'),
+        timeValue: parseInt(formData.get('timeValue'))
+    };
+    
+    fetch('/api-keys/<%= server %>', {
         method: 'POST',
-        body: formData
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(data)
     })
     .then(response => response.json())
     .then(data => {
         if (data.success) {
-            document.getElementById('generatedKey').value = data.key;
-            document.getElementById('exampleUrl').value = data.example_url;
-            
-            // Cerrar modal de generación y abrir modal de resultado
-            const generateModal = bootstrap.Modal.getInstance(document.getElementById('generateModal'));
-            generateModal.hide();
-            
-            const keyModal = new bootstrap.Modal(document.getElementById('keyModal'));
-            keyModal.show();
-            
-            // Recargar página después de cerrar el modal
-            document.getElementById('keyModal').addEventListener('hidden.bs.modal', function() {
+            showSuccess('API Key generada correctamente');
+            setTimeout(() => {
                 location.reload();
-            });
+            }, 1500);
         } else {
-            alert('Error: ' + data.error);
+            showError(data.error || 'Error generando API Key');
         }
     })
     .catch(error => {
-        console.error('Error:', error);
-        alert('Error generando API Key');
+        showError('Error de conexión');
     });
 }
 
-function deleteKey(keyId) {
+function deleteKey(keyId, keyValue) {
     if (confirm('¿Estás seguro de que quieres eliminar esta API Key?')) {
-        fetch('/api-keys/<%= server %>/' + keyId, {
+        fetch(`/api-keys/<%= server %>/${keyId}`, {
             method: 'DELETE'
         })
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                location.reload();
+                showSuccess('API Key eliminada correctamente');
+                setTimeout(() => {
+                    location.reload();
+                }, 1500);
             } else {
-                alert('Error: ' + data.error);
+                showError(data.error || 'Error eliminando API Key');
             }
         })
         .catch(error => {
-            console.error('Error:', error);
-            alert('Error eliminando API Key');
+            showError('Error de conexión');
         });
     }
 }
 
-function copyToClipboard(text) {
-    navigator.clipboard.writeText(text).then(function() {
-        // Mostrar notificación de éxito
-        const btn = event.target.closest('button');
-        const originalHTML = btn.innerHTML;
-        btn.innerHTML = '<i class="fas fa-check"></i>';
-        btn.classList.add('btn-success');
-        btn.classList.remove('btn-outline-secondary');
-        
-        setTimeout(() => {
-            btn.innerHTML = originalHTML;
-            btn.classList.remove('btn-success');
-            btn.classList.add('btn-outline-secondary');
-        }, 2000);
+// Actualizar timers cada segundo
+function updateTimers() {
+    const timeElements = document.querySelectorAll('[id^="time-"]');
+    timeElements.forEach(element => {
+        const currentText = element.textContent;
+        if (currentText && currentText !== 'Expirada' && currentText !== 'N/A') {
+            // Aquí podrías implementar la lógica para actualizar el tiempo restante
+            // Por ahora solo mantenemos el texto actual
+        }
     });
 }
+
+// Actualizar timers cada segundo
+setInterval(updateTimers, 1000);
 </script>

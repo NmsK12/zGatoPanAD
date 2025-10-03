@@ -1,19 +1,16 @@
-<%
-const title = 'Gestión de Usuarios';
-const body = `
 <div class="row">
     <div class="col-12">
         <div class="card mb-4">
-            <div class="card-body">
+            <div class="card-header">
                 <div class="d-flex justify-content-between align-items-center">
                     <div>
-                        <h5 class="card-title mb-1">
-                            <i class="fas fa-users me-2"></i>Usuarios Administradores
+                        <h5 class="card-title mb-1 neon-white">
+                            <i class="fas fa-users me-2"></i>Gestionar Usuarios
                         </h5>
-                        <p class="card-text text-muted">Gestiona los usuarios que pueden acceder al panel</p>
+                        <p class="card-text neon-purple">Administrar usuarios del panel</p>
                     </div>
                     <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addUserModal">
-                        <i class="fas fa-user-plus me-2"></i>Agregar Usuario
+                        <i class="fas fa-plus me-2"></i>Agregar Usuario
                     </button>
                 </div>
             </div>
@@ -24,40 +21,48 @@ const body = `
 <div class="row">
     <div class="col-12">
         <div class="card">
+            <div class="card-header">
+                <h6 class="card-title mb-0 neon-white">Usuarios Existentes</h6>
+            </div>
             <div class="card-body">
-                <h6 class="card-title mb-3">Lista de Usuarios</h6>
-                <div class="table-responsive">
-                    <table class="table table-hover">
-                        <thead>
-                            <tr>
-                                <th>ID</th>
-                                <th>Usuario</th>
-                                <th>Fecha de Creación</th>
-                                <th>Acciones</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            ${users.map(user => `
+                <% if (users.length === 0) { %>
+                    <div class="text-center py-5">
+                        <i class="fas fa-users fa-3x neon-purple mb-3"></i>
+                        <h6 class="neon-white">No hay usuarios registrados</h6>
+                        <p class="neon-purple">Agrega el primer usuario para comenzar</p>
+                    </div>
+                <% } else { %>
+                    <div class="table-responsive">
+                        <table class="table table-dark table-hover">
+                            <thead>
                                 <tr>
-                                    <td>${user.id}</td>
-                                    <td>
-                                        <i class="fas fa-user me-2"></i>${user.username}
-                                        ${user.username === 'zGatoO' ? '<span class="badge bg-primary ms-2">Principal</span>' : ''}
-                                    </td>
-                                    <td>${user.created_at_formatted}</td>
-                                    <td>
-                                        ${user.username === 'zGatoO' ? 
-                                            '<span class="text-muted">No se puede eliminar</span>' :
-                                            `<button class="btn btn-sm btn-danger" onclick="deleteUser(${user.id})">
-                                                <i class="fas fa-trash"></i>
-                                            </button>`
-                                        }
-                                    </td>
+                                    <th class="neon-white">ID</th>
+                                    <th class="neon-white">Usuario</th>
+                                    <th class="neon-white">Creado</th>
+                                    <th class="neon-white">Acciones</th>
                                 </tr>
-                            `).join('')}
-                        </tbody>
-                    </table>
-                </div>
+                            </thead>
+                            <tbody>
+                                <% users.forEach(user => { %>
+                                    <tr>
+                                        <td class="neon-white"><%= user.id %></td>
+                                        <td class="neon-white"><%= user.username %></td>
+                                        <td class="neon-white"><%= user.created_at_formatted %></td>
+                                        <td>
+                                            <% if (user.username !== 'zGatoO') { %>
+                                                <button class="btn btn-danger btn-sm" onclick="deleteUser('<%= user.id %>', '<%= user.username %>')">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            <% } else { %>
+                                                <span class="text-muted">Fundador</span>
+                                            <% } %>
+                                        </td>
+                                    </tr>
+                                <% }); %>
+                            </tbody>
+                        </table>
+                    </div>
+                <% } %>
             </div>
         </div>
     </div>
@@ -66,57 +71,42 @@ const body = `
 <!-- Modal para agregar usuario -->
 <div class="modal fade" id="addUserModal" tabindex="-1">
     <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">
-                    <i class="fas fa-user-plus me-2"></i>Agregar Nuevo Usuario
-                </h5>
+        <div class="modal-content" style="background: var(--secondary-bg); border: 1px solid var(--border-color);">
+            <div class="modal-header" style="border-bottom: 1px solid var(--border-color);">
+                <h5 class="modal-title neon-white">Agregar Nuevo Usuario</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
                 <form id="addUserForm">
                     <div class="mb-3">
-                        <label for="username" class="form-label">Nombre de Usuario</label>
-                        <input type="text" class="form-control" id="username" name="username" required
-                               placeholder="Ej: admin2">
+                        <label for="username" class="form-label neon-purple">Nombre de Usuario</label>
+                        <input type="text" class="form-control" id="username" name="username" 
+                               placeholder="Ingresa el nombre de usuario" required>
                     </div>
                     <div class="mb-3">
-                        <label for="password" class="form-label">Contraseña</label>
-                        <input type="password" class="form-control" id="password" name="password" required
-                               placeholder="Mínimo 6 caracteres">
-                    </div>
-                    <div class="alert alert-info">
-                        <i class="fas fa-info-circle me-2"></i>
-                        El usuario podrá acceder al panel y gestionar API Keys
+                        <label for="password" class="form-label neon-purple">Contraseña</label>
+                        <input type="password" class="form-control" id="password" name="password" 
+                               placeholder="Ingresa la contraseña" required>
                     </div>
                 </form>
             </div>
-            <div class="modal-footer">
+            <div class="modal-footer" style="border-top: 1px solid var(--border-color);">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                <button type="button" class="btn btn-primary" onclick="addUser()">
-                    <i class="fas fa-user-plus me-2"></i>Agregar Usuario
-                </button>
+                <button type="button" class="btn btn-primary" onclick="addUser()">Agregar Usuario</button>
             </div>
         </div>
     </div>
 </div>
-`;
-%>
-
-<%- include('layout', { title, body, user }) %>
 
 <script>
 function addUser() {
     const form = document.getElementById('addUserForm');
     const formData = new FormData(form);
     
-    // Convertir FormData a objeto JSON
     const data = {
         username: formData.get('username'),
         password: formData.get('password')
     };
-    
-    console.log('Enviando datos:', data);
     
     fetch('/users', {
         method: 'POST',
@@ -125,39 +115,40 @@ function addUser() {
         },
         body: JSON.stringify(data)
     })
-    .then(response => {
-        console.log('Respuesta del servidor:', response.status);
-        return response.json();
-    })
+    .then(response => response.json())
     .then(data => {
         if (data.success) {
-            location.reload();
+            showSuccess('Usuario agregado correctamente');
+            setTimeout(() => {
+                location.reload();
+            }, 1500);
         } else {
-            alert('Error: ' + data.error);
+            showError(data.error || 'Error agregando usuario');
         }
     })
     .catch(error => {
-        console.error('Error:', error);
-        alert('Error agregando usuario');
+        showError('Error de conexión');
     });
 }
 
-function deleteUser(userId) {
-    if (confirm('¿Estás seguro de que quieres eliminar este usuario?')) {
-        fetch('/users/' + userId, {
+function deleteUser(userId, username) {
+    if (confirm(`¿Estás seguro de que quieres eliminar al usuario "${username}"?`)) {
+        fetch(`/users/${userId}`, {
             method: 'DELETE'
         })
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                location.reload();
+                showSuccess('Usuario eliminado correctamente');
+                setTimeout(() => {
+                    location.reload();
+                }, 1500);
             } else {
-                alert('Error: ' + data.error);
+                showError(data.error || 'Error eliminando usuario');
             }
         })
         .catch(error => {
-            console.error('Error:', error);
-            alert('Error eliminando usuario');
+            showError('Error de conexión');
         });
     }
 }
