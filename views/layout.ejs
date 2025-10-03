@@ -827,15 +827,15 @@
         document.addEventListener('DOMContentLoaded', function() {
             if (window.location.pathname === '/dashboard') {
                 refreshStats();
+                
+                // Mostrar animación de bienvenida solo en dashboard
+                if (shouldShowWelcome()) {
+                    showWelcomeAnimation();
+                }
             }
             
             // Crear partículas de fondo
             createParticles();
-            
-            // Mostrar animación de bienvenida solo si es la primera vez después del login
-            if (shouldShowWelcome()) {
-                showWelcomeAnimation();
-            }
         });
         
         // Función para crear partículas de fondo
@@ -883,23 +883,23 @@
             const welcomeOverlay = document.getElementById('welcomeOverlay');
             const welcomeUsername = document.getElementById('welcomeUsername');
             
-            // Obtener nombre de usuario del localStorage o de la sesión
+            // Obtener nombre de usuario real
             const username = '<%= username || "Usuario" %>';
             welcomeUsername.textContent = username.toUpperCase();
             
-            // Duración aleatoria entre 1 y 3 segundos
-            const duration = Math.floor(Math.random() * 2000) + 1000; // 1000ms a 3000ms
+            // Duración fija de 1.5 segundos (más rápido)
+            const duration = 1500;
             
-            // Mostrar animación por tiempo aleatorio
+            // Mostrar animación por tiempo fijo
             setTimeout(() => {
                 welcomeOverlay.style.opacity = '0';
                 welcomeOverlay.style.transform = 'scale(0.8)';
-                welcomeOverlay.style.transition = 'all 0.5s ease-out';
+                welcomeOverlay.style.transition = 'all 0.3s ease-out';
                 
                 // Ocultar completamente después de la transición
                 setTimeout(() => {
                     welcomeOverlay.style.display = 'none';
-                }, 500);
+                }, 300);
             }, duration);
         }
     </script>
