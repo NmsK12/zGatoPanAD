@@ -33,11 +33,11 @@ async function syncKeyToAPI(serverKey, apiKey, description, expiresAt) {
         
         // URLs de PostgreSQL para cada servidor
         const DATABASE_URLS = {
-            'dni-basico': 'postgresql://postgres:obhVnLxfoSFQDRtwtSBPayWfuFxGUGFx@yamabiko.proxy.rlwy.net:25975/railway',
-            'dni-detallado': 'postgresql://postgres:KtvWiXujOvJYKfgJPMHxGntBaDYHPAXg@yamabiko.proxy.rlwy.net:27118/railway',
+            'dni': 'postgresql://postgres:obhVnLxfoSFQDRtwtSBPayWfuFxGUGFx@yamabiko.proxy.rlwy.net:25975/railway',
+            'dnit': 'postgresql://postgres:KtvWiXujOvJYKfgJPMHxGntBaDYHPAXg@yamabiko.proxy.rlwy.net:27118/railway',
+            'nombres': 'postgresql://postgres:yrgxHVIPjGFTNBQXTLiDltHAzFkaNCUr@gondola.proxy.rlwy.net:49761/railway',
             'certificados': 'postgresql://postgres:HwTdcvNsmJyRlcExdwNbjInngGAAnJPA@ballast.proxy.rlwy.net:28072/railway',
-            'arbol-genealogico': 'postgresql://postgres:qzvXzemtXvpyZsqIMZaQJrMdmqvrgckT@crossover.proxy.rlwy.net:57036/railway',
-            'busqueda-nombres': 'postgresql://postgres:yrgxHVIPjGFTNBQXTLiDltHAzFkaNCUr@gondola.proxy.rlwy.net:49761/railway'
+            'arbol': 'postgresql://postgres:qzvXzemtXvpyZsqIMZaQJrMdmqvrgckT@crossover.proxy.rlwy.net:57036/railway'
         };
         
         const databaseUrl = DATABASE_URLS[serverKey];
@@ -128,29 +128,34 @@ const pool = new Pool({
 
 // Configuración de las APIs
 const API_SERVERS = {
-    'dni-basico': {
-        name: 'DNI Básico',
+    'dni': {
+        name: '/dni',
+        description: 'DNI Básico',
         url: 'https://zgatoodni.up.railway.app',
         color: '#3498db'
     },
-    'dni-detallado': {
-        name: 'DNI Detallado', 
+    'dnit': {
+        name: '/dnit',
+        description: 'DNI Detallado',
         url: 'https://zgatoodnit.up.railway.app',
         color: '#e74c3c'
     },
+    'nombres': {
+        name: '/nombres',
+        description: 'Búsqueda por Nombres',
+        url: 'https://zgatoonm.up.railway.app',
+        color: '#9b59b6'
+    },
     'certificados': {
-        name: 'Certificados',
+        name: '/certificados',
+        description: 'Certificados',
         url: 'https://zgatoocert.up.railway.app',
         color: '#f39c12'
     },
-    'arbol-genealogico': {
-        name: 'Árbol Genealógico',
+    'arbol': {
+        name: '/arbol',
+        description: 'Árbol Genealógico',
         url: 'https://zgatooarg.up.railway.app',
-        color: '#27ae60'
-    },
-    'busqueda-nombres': {
-        name: 'Búsqueda por Nombres',
-        url: 'https://zgatoonm.up.railway.app',
         color: '#9b59b6'
     }
 };
@@ -398,20 +403,20 @@ app.post('/api-keys/:server/generate', requireAuth, async (req, res) => {
         // Generar URL de ejemplo según el servidor
         let exampleUrl;
         switch(server) {
-            case 'dni-basico':
+            case 'dni':
                 exampleUrl = `${API_SERVERS[server].url}/dniresult?dni=12345678&key=${apiKey}`;
                 break;
-            case 'dni-detallado':
+            case 'dnit':
                 exampleUrl = `${API_SERVERS[server].url}/dnit?dni=12345678&key=${apiKey}`;
+                break;
+            case 'nombres':
+                exampleUrl = `${API_SERVERS[server].url}/nm?nombres=PEDRO&apellidos=CASTILLO|TERRONES&key=${apiKey}`;
                 break;
             case 'certificados':
                 exampleUrl = `${API_SERVERS[server].url}/antpen?dni=12345678&key=${apiKey}`;
                 break;
-            case 'arbol-genealogico':
+            case 'arbol':
                 exampleUrl = `${API_SERVERS[server].url}/ag?dni=12345678&key=${apiKey}`;
-                break;
-            case 'busqueda-nombres':
-                exampleUrl = `${API_SERVERS[server].url}/nm?nombres=PEDRO&apellidos=CASTILLO|TERRONES&key=${apiKey}`;
                 break;
             default:
                 exampleUrl = `${API_SERVERS[server].url}/?dni=12345678&key=${apiKey}`;

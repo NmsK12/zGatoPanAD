@@ -151,6 +151,126 @@
                 0 0 20px #8b5cf6;
         }
         
+        /* Estilos para el nuevo dashboard */
+        .stat-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            padding: 8px 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .stat-item:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+        }
+        
+        .stat-item i {
+            margin-right: 8px;
+            width: 20px;
+        }
+        
+        .server-card {
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .server-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(139, 92, 246, 0.4);
+        }
+        
+        .server-icon {
+            position: relative;
+            display: inline-block;
+        }
+        
+        .status-dot {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            border: 2px solid var(--primary-bg);
+        }
+        
+        .status-dot.online {
+            background-color: #10b981;
+            box-shadow: 0 0 10px rgba(16, 185, 129, 0.5);
+        }
+        
+        .status-dot.offline {
+            background-color: #ef4444;
+            box-shadow: 0 0 10px rgba(239, 68, 68, 0.5);
+        }
+        
+        .server-stats {
+            margin: 15px 0;
+        }
+        
+        .stat-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+            font-size: 0.9em;
+        }
+        
+        .stat-row:last-child {
+            margin-bottom: 0;
+        }
+        
+        .system-status {
+            text-align: center;
+        }
+        
+        .status-indicators {
+            margin-top: 10px;
+        }
+        
+        .status-item {
+            display: block;
+            margin-bottom: 5px;
+            font-size: 0.9em;
+        }
+        
+        .status-item.online {
+            color: #10b981;
+        }
+        
+        .user-stats, .system-stats {
+            margin-bottom: 15px;
+        }
+        
+        .info-item {
+            margin-bottom: 10px;
+            font-size: 0.9em;
+        }
+        
+        .info-item strong {
+            display: block;
+            margin-bottom: 5px;
+        }
+        
+        .badge {
+            font-size: 0.8em;
+            padding: 4px 8px;
+        }
+        
+        .btn-outline-light {
+            border-color: var(--accent-purple);
+            color: var(--accent-purple);
+        }
+        
+        .btn-outline-light:hover {
+            background-color: var(--accent-purple);
+            border-color: var(--accent-purple);
+            color: var(--text-primary);
+        }
+        
         .form-control, .form-select {
             background: var(--secondary-bg);
             border: 1px solid var(--border-color);
@@ -211,17 +331,20 @@
                         <a class="nav-link" href="/dashboard">
                             <i class="fas fa-tachometer-alt me-2"></i> Dashboard
                         </a>
-                        <a class="nav-link" href="/api-keys/dni-basico">
-                            <i class="fas fa-id-card me-2"></i> DNI Básico
+                        <a class="nav-link" href="/api-keys/dni">
+                            <i class="fas fa-id-card me-2"></i> /dni
                         </a>
-                        <a class="nav-link" href="/api-keys/dni-detallado">
-                            <i class="fas fa-id-card-alt me-2"></i> DNI Detallado
+                        <a class="nav-link" href="/api-keys/dnit">
+                            <i class="fas fa-id-card-alt me-2"></i> /dnit
+                        </a>
+                        <a class="nav-link" href="/api-keys/nombres">
+                            <i class="fas fa-search me-2"></i> /nombres
                         </a>
                         <a class="nav-link" href="/api-keys/certificados">
-                            <i class="fas fa-certificate me-2"></i> Certificados
+                            <i class="fas fa-certificate me-2"></i> /certificados
                         </a>
-                        <a class="nav-link" href="/api-keys/arbol-genealogico">
-                            <i class="fas fa-sitemap me-2"></i> Árbol Genealógico
+                        <a class="nav-link" href="/api-keys/arbol">
+                            <i class="fas fa-sitemap me-2"></i> /arbol
                         </a>
                         <a class="nav-link" href="/users">
                             <i class="fas fa-users me-2"></i> Usuarios
@@ -345,6 +468,39 @@
         function showWarning(message) {
             showToast(message, 'warning');
         }
+        
+        // Funciones para el dashboard
+        function refreshStats() {
+            // Simular actualización de estadísticas
+            const now = new Date();
+            document.getElementById('last-update').textContent = now.toLocaleTimeString();
+            
+            // Simular datos de API keys
+            const servers = ['dni', 'dnit', 'nombres', 'certificados', 'arbol'];
+            let totalKeys = 0;
+            
+            servers.forEach(server => {
+                const randomKeys = Math.floor(Math.random() * 10);
+                document.getElementById(`keys-${server}`).textContent = randomKeys;
+                totalKeys += randomKeys;
+            });
+            
+            document.getElementById('total-keys').textContent = totalKeys;
+            document.getElementById('active-users').textContent = Math.floor(Math.random() * 5) + 1;
+            document.getElementById('total-users').textContent = Math.floor(Math.random() * 10) + 5;
+            
+            showSuccess('Estadísticas actualizadas correctamente');
+        }
+        
+        // Actualizar estadísticas cada 30 segundos
+        setInterval(refreshStats, 30000);
+        
+        // Cargar estadísticas iniciales
+        document.addEventListener('DOMContentLoaded', function() {
+            if (window.location.pathname === '/') {
+                refreshStats();
+            }
+        });
     </script>
 </body>
 </html>

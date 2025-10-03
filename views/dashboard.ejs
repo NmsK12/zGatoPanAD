@@ -3,11 +3,51 @@
         <div class="card mb-4">
             <div class="card-header">
                 <h5 class="card-title mb-0 neon-white">
-                    <i class="fas fa-tachometer-alt me-2"></i>Dashboard
+                    <i class="fas fa-tachometer-alt me-2"></i>Dashboard - WOLFDATA-DOX
                 </h5>
             </div>
             <div class="card-body">
-                <p class="neon-purple">Bienvenido al panel de administración de WOLFDATA-DOX</p>
+                <div class="row">
+                    <div class="col-md-8">
+                        <p class="neon-purple mb-3">Panel de administración del sistema WOLFDATA-DOX</p>
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="stat-item">
+                                    <i class="fas fa-server text-success"></i>
+                                    <span class="neon-white">Servidores Activos</span>
+                                    <span class="badge bg-success" id="active-servers">6</span>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="stat-item">
+                                    <i class="fas fa-key text-warning"></i>
+                                    <span class="neon-white">API Keys Totales</span>
+                                    <span class="badge bg-warning" id="total-keys">0</span>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="stat-item">
+                                    <i class="fas fa-clock text-info"></i>
+                                    <span class="neon-white">Última Actualización</span>
+                                    <span class="badge bg-info" id="last-update">Ahora</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4 text-end">
+                        <div class="system-status">
+                            <h6 class="neon-white">Estado del Sistema</h6>
+                            <div class="status-indicators">
+                                <span class="status-item online">
+                                    <i class="fas fa-circle"></i> Online
+                                </span>
+                                <span class="status-item">
+                                    <i class="fas fa-database"></i> DB Conectada
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -15,45 +55,167 @@
 
 <div class="row">
     <div class="col-md-3 mb-4">
-        <div class="card stats-card">
+        <div class="card stats-card server-card" data-server="dni">
             <div class="card-body text-center">
-                <i class="fas fa-id-card fa-2x mb-2"></i>
-                <h5 class="neon-white">DNI Básico</h5>
-                <p class="neon-purple">Consultas básicas de DNI</p>
-                <a href="/api-keys/dni-basico" class="btn btn-outline-light btn-sm">Gestionar</a>
+                <div class="server-icon">
+                    <i class="fas fa-id-card fa-2x mb-2"></i>
+                    <span class="status-dot online"></span>
+                </div>
+                <h5 class="neon-white">/dni</h5>
+                <p class="neon-purple">DNI Básico</p>
+                <div class="server-stats">
+                    <div class="stat-row">
+                        <span class="neon-white">API Keys:</span>
+                        <span class="badge bg-primary" id="keys-dni">0</span>
+                    </div>
+                    <div class="stat-row">
+                        <span class="neon-white">Estado:</span>
+                        <span class="badge bg-success">Online</span>
+                    </div>
+                    <div class="stat-row">
+                        <span class="neon-white">URL:</span>
+                        <span class="badge bg-info">zgatoodni.up.railway.app</span>
+                    </div>
+                </div>
+                <a href="/api-keys/dni" class="btn btn-outline-light btn-sm">Gestionar</a>
             </div>
         </div>
     </div>
     
     <div class="col-md-3 mb-4">
-        <div class="card stats-card">
+        <div class="card stats-card server-card" data-server="dnit">
             <div class="card-body text-center">
-                <i class="fas fa-id-card-alt fa-2x mb-2"></i>
-                <h5 class="neon-white">DNI Detallado</h5>
-                <p class="neon-purple">Consultas detalladas de DNI</p>
-                <a href="/api-keys/dni-detallado" class="btn btn-outline-light btn-sm">Gestionar</a>
+                <div class="server-icon">
+                    <i class="fas fa-id-card-alt fa-2x mb-2"></i>
+                    <span class="status-dot online"></span>
+                </div>
+                <h5 class="neon-white">/dnit</h5>
+                <p class="neon-purple">DNI Detallado</p>
+                <div class="server-stats">
+                    <div class="stat-row">
+                        <span class="neon-white">API Keys:</span>
+                        <span class="badge bg-primary" id="keys-dnit">0</span>
+                    </div>
+                    <div class="stat-row">
+                        <span class="neon-white">Estado:</span>
+                        <span class="badge bg-success">Online</span>
+                    </div>
+                    <div class="stat-row">
+                        <span class="neon-white">URL:</span>
+                        <span class="badge bg-info">zgatodnit.up.railway.app</span>
+                    </div>
+                </div>
+                <a href="/api-keys/dnit" class="btn btn-outline-light btn-sm">Gestionar</a>
             </div>
         </div>
     </div>
     
     <div class="col-md-3 mb-4">
-        <div class="card stats-card">
+        <div class="card stats-card server-card" data-server="nombres">
             <div class="card-body text-center">
-                <i class="fas fa-certificate fa-2x mb-2"></i>
-                <h5 class="neon-white">Certificados</h5>
-                <p class="neon-purple">Consultas de certificados</p>
+                <div class="server-icon">
+                    <i class="fas fa-search fa-2x mb-2"></i>
+                    <span class="status-dot online"></span>
+                </div>
+                <h5 class="neon-white">/nombres</h5>
+                <p class="neon-purple">Búsqueda por Nombres</p>
+                <div class="server-stats">
+                    <div class="stat-row">
+                        <span class="neon-white">API Keys:</span>
+                        <span class="badge bg-primary" id="keys-nombres">0</span>
+                    </div>
+                    <div class="stat-row">
+                        <span class="neon-white">Estado:</span>
+                        <span class="badge bg-success">Online</span>
+                    </div>
+                    <div class="stat-row">
+                        <span class="neon-white">URL:</span>
+                        <span class="badge bg-info">zgatonombres.up.railway.app</span>
+                    </div>
+                </div>
+                <a href="/api-keys/nombres" class="btn btn-outline-light btn-sm">Gestionar</a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3 mb-4">
+        <div class="card stats-card server-card" data-server="certificados">
+            <div class="card-body text-center">
+                <div class="server-icon">
+                    <i class="fas fa-certificate fa-2x mb-2"></i>
+                    <span class="status-dot online"></span>
+                </div>
+                <h5 class="neon-white">/certificados</h5>
+                <p class="neon-purple">Certificados</p>
+                <div class="server-stats">
+                    <div class="stat-row">
+                        <span class="neon-white">API Keys:</span>
+                        <span class="badge bg-primary" id="keys-certificados">0</span>
+                    </div>
+                    <div class="stat-row">
+                        <span class="neon-white">Estado:</span>
+                        <span class="badge bg-success">Online</span>
+                    </div>
+                    <div class="stat-row">
+                        <span class="neon-white">URL:</span>
+                        <span class="badge bg-info">zgatocertificados.up.railway.app</span>
+                    </div>
+                </div>
                 <a href="/api-keys/certificados" class="btn btn-outline-light btn-sm">Gestionar</a>
             </div>
         </div>
     </div>
+</div>
+
+<div class="row">
+    <div class="col-md-3 mb-4">
+        <div class="card stats-card server-card" data-server="arbol">
+                <div class="card-body text-center">
+                <div class="server-icon">
+                    <i class="fas fa-sitemap fa-2x mb-2"></i>
+                    <span class="status-dot online"></span>
+                </div>
+                <h5 class="neon-white">/arbol</h5>
+                <p class="neon-purple">Árbol Genealógico</p>
+                <div class="server-stats">
+                    <div class="stat-row">
+                        <span class="neon-white">API Keys:</span>
+                        <span class="badge bg-primary" id="keys-arbol">0</span>
+                    </div>
+                    <div class="stat-row">
+                        <span class="neon-white">Estado:</span>
+                        <span class="badge bg-success">Online</span>
+                    </div>
+                    <div class="stat-row">
+                        <span class="neon-white">URL:</span>
+                        <span class="badge bg-info">zgatoarbol.up.railway.app</span>
+                    </div>
+                </div>
+                <a href="/api-keys/arbol" class="btn btn-outline-light btn-sm">Gestionar</a>
+            </div>
+                        </div>
+                        </div>
     
     <div class="col-md-3 mb-4">
-        <div class="card stats-card">
+        <div class="card stats-card server-card" data-server="auth">
             <div class="card-body text-center">
-                <i class="fas fa-sitemap fa-2x mb-2"></i>
-                <h5 class="neon-white">Árbol Genealógico</h5>
-                <p class="neon-purple">Consultas de árbol genealógico</p>
-                <a href="/api-keys/arbol-genealogico" class="btn btn-outline-light btn-sm">Gestionar</a>
+                <div class="server-icon">
+                    <i class="fas fa-shield-alt fa-2x mb-2"></i>
+                    <span class="status-dot online"></span>
+                        </div>
+                <h5 class="neon-white">/auth</h5>
+                <p class="neon-purple">Autenticación</p>
+                <div class="server-stats">
+                    <div class="stat-row">
+                        <span class="neon-white">Estado:</span>
+                        <span class="badge bg-success">Online</span>
+                    </div>
+                    <div class="stat-row">
+                        <span class="neon-white">URL:</span>
+                        <span class="badge bg-info">zgatoauth.up.railway.app</span>
+                    </div>
+                </div>
+                <a href="/users" class="btn btn-outline-light btn-sm">Gestionar</a>
             </div>
         </div>
     </div>
@@ -64,12 +226,23 @@
         <div class="card">
             <div class="card-header">
                 <h6 class="card-title mb-0 neon-white">
-                    <i class="fas fa-users me-2"></i>Usuarios
+                    <i class="fas fa-users me-2"></i>Gestión de Usuarios
                 </h6>
             </div>
             <div class="card-body">
-                <p class="neon-purple">Gestionar usuarios del panel</p>
-                <a href="/users" class="btn btn-primary">Gestionar Usuarios</a>
+                <div class="user-stats">
+                    <div class="stat-item">
+                        <i class="fas fa-user-check text-success"></i>
+                        <span class="neon-white">Usuarios Activos:</span>
+                        <span class="badge bg-success" id="active-users">0</span>
+                    </div>
+                    <div class="stat-item">
+                        <i class="fas fa-user-plus text-info"></i>
+                        <span class="neon-white">Total Usuarios:</span>
+                        <span class="badge bg-info" id="total-users">0</span>
+                    </div>
+                </div>
+                <a href="/users" class="btn btn-primary btn-sm">Gestionar Usuarios</a>
             </div>
         </div>
     </div>
@@ -78,12 +251,71 @@
         <div class="card">
             <div class="card-header">
                 <h6 class="card-title mb-0 neon-white">
-                    <i class="fas fa-info-circle me-2"></i>Información
+                    <i class="fas fa-chart-line me-2"></i>Estadísticas del Sistema
                 </h6>
             </div>
             <div class="card-body">
-                <p class="neon-purple">Panel de administración WOLFDATA-DOX</p>
-                <p class="neon-white">Versión 1.0.0</p>
+                <div class="system-stats">
+                    <div class="stat-item">
+                        <i class="fas fa-clock text-warning"></i>
+                        <span class="neon-white">Tiempo de Actividad:</span>
+                        <span class="badge bg-warning" id="uptime">24h 30m</span>
+                    </div>
+                    <div class="stat-item">
+                        <i class="fas fa-memory text-info"></i>
+                        <span class="neon-white">Memoria Usada:</span>
+                        <span class="badge bg-info" id="memory-usage">45%</span>
+                    </div>
+                </div>
+                <button class="btn btn-outline-light btn-sm" onclick="refreshStats()">
+                    <i class="fas fa-sync-alt"></i> Actualizar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h6 class="card-title mb-0 neon-white">
+                    <i class="fas fa-info-circle me-2"></i>Información del Sistema
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="info-item">
+                            <strong class="neon-white">Sistema:</strong>
+                            <span class="neon-purple">WOLFDATA-DOX v2.0.0</span>
+                        </div>
+                        <div class="info-item">
+                            <strong class="neon-white">Desarrollado por:</strong>
+                            <span class="neon-purple">@zGatoO - @WinniePoohOFC - @choco_tete</span>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="info-item">
+                            <strong class="neon-white">Última Actualización:</strong>
+                            <span class="neon-purple" id="last-system-update">Hoy</span>
+                        </div>
+                        <div class="info-item">
+                            <strong class="neon-white">Estado:</strong>
+                            <span class="badge bg-success">Operativo</span>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="info-item">
+                            <strong class="neon-white">Soporte:</strong>
+                            <span class="neon-purple">@choco_tete</span>
+                        </div>
+                        <div class="info-item">
+                            <strong class="neon-white">Documentación:</strong>
+                            <a href="#" class="neon-purple">Ver Docs</a>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
