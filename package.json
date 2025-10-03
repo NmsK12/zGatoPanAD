@@ -1,0 +1,28 @@
+{
+  "name": "admin-panel-api-keys",
+  "version": "1.0.0",
+  "description": "Panel de administración para API Keys - WolfData Dox",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "nodemon server.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "express-session": "^1.17.3",
+    "bcryptjs": "^2.4.3",
+    "pg": "^8.11.3",
+    "axios": "^1.6.0",
+    "moment": "^2.29.4",
+    "ejs": "^3.1.9"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "keywords": ["api", "keys", "admin", "panel", "wolfdata"],
+  "author": "zGatoO",
+  "license": "MIT"
+}

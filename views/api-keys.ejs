@@ -1,0 +1,269 @@
+<div class="row">
+    <div class="col-12">
+        <div class="card mb-4">
+            <div class="card-header">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h5 class="card-title mb-1 neon-white">
+                            <i class="fas fa-key me-2"></i>
+                            Gestionar API Keys
+                        </h5>
+                        <p class="card-text neon-purple"><%= serverInfo.name %> - <%= serverInfo.url %></p>
+                    </div>
+                    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#generateModal">
+                        <i class="fas fa-plus me-2"></i>Generar Nueva Key
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h6 class="card-title mb-0 neon-white">API Keys Existentes</h6>
+            </div>
+            <div class="card-body">
+                <% if (keys.length === 0) { %>
+                    <div class="text-center py-5">
+                        <i class="fas fa-key fa-3x neon-purple mb-3"></i>
+                        <h6 class="neon-white">No hay API Keys generadas</h6>
+                        <p class="neon-purple">Genera tu primera API Key para comenzar</p>
+                    </div>
+                <% } else { %>
+                    <div class="table-responsive">
+                        <table class="table table-dark table-hover">
+                            <thead>
+                                <tr>
+                                    <th class="neon-white">API Key</th>
+                                    <th class="neon-white">Descripción</th>
+                                    <th class="neon-white">Estado</th>
+                                    <th class="neon-white">Tiempo Restante</th>
+                                    <th class="neon-white">Expira</th>
+                                    <th class="neon-white">Último Uso</th>
+                                    <th class="neon-white">Creado Por</th>
+                                    <th class="neon-white">Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <% keys.forEach(key => { %>
+                                    <tr>
+                                        <td>
+                                            <code class="neon-cyan"><%= key.key.substring(0, 8) %>...</code>
+                                        </td>
+                                        <td class="neon-white"><%= key.description || 'Sin descripción' %></td>
+                                        <td>
+                                            <% if (key.time_remaining_seconds > 0) { %>
+                                                <span class="badge bg-success">Activa</span>
+                                            <% } else { %>
+                                                <span class="badge bg-danger">Expirada</span>
+                                            <% } %>
+                                        </td>
+                                        <td class="neon-cyan" id="time-<%= key.id %>">
+                                            <%= key.time_remaining %>
+                                        </td>
+                                        <td class="neon-white">
+                                            <%= new Date(key.expires_at).toLocaleString() %>
+                                        </td>
+                                        <td class="neon-white">
+                                            <%= key.last_used ? new Date(key.last_used).toLocaleString() : 'Nunca' %>
+                                        </td>
+                                        <td class="neon-white"><%= key.created_by %></td>
+                                        <td>
+                                            <% if (key.can_delete) { %>
+                                                <button class="btn btn-sm btn-danger" onclick="deleteKey('<%= key.id %>')">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            <% } else { %>
+                                                <span class="text-muted">No disponible</span>
+                                            <% } %>
+                                        </td>
+                                    </tr>
+                                <% }); %>
+                            </tbody>
+                        </table>
+                    </div>
+                <% } %>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para generar nueva API Key -->
+<div class="modal fade" id="generateModal" tabindex="-1" aria-labelledby="generateModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title neon-white" id="generateModalLabel">
+                    <i class="fas fa-plus me-2"></i>
+                    Generar Nueva API Key
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="generateForm">
+                    <div class="mb-3">
+                        <label for="description" class="form-label neon-white">
+                            <i class="fas fa-tag me-2"></i>
+                            Descripción
+                        </label>
+                        <input type="text" class="form-control" id="description" name="description" 
+                               placeholder="Ej: API Key para desarrollo" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label neon-white">
+                            <i class="fas fa-clock me-2"></i>
+                            Duración
+                        </label>
+                        <div class="row">
+                            <div class="col-8">
+                                <input type="number" class="form-control" id="timeValue" name="timeValue" 
+                                       min="1" value="1" required>
+                            </div>
+                            <div class="col-4">
+                                <select class="form-select" id="timeUnit" name="timeUnit" required>
+                                    <option value="minutes">Minutos</option>
+                                    <option value="hours" selected>Horas</option>
+                                    <option value="days">Días</option>
+                                    <option value="months">Meses</option>
+                                    <option value="years">Años</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>
+                        <strong>Ejemplo de uso:</strong><br>
+                        <code class="neon-cyan">
+                            <%= serverInfo.url %>/dniresult?dni=12345678&key=TU_API_KEY
+                        </code>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="fas fa-times me-2"></i>Cancelar
+                </button>
+                <button type="button" class="btn btn-primary" onclick="generateKey()">
+                    <i class="fas fa-key me-2"></i>Generar Key
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Función para generar API Key
+    function generateKey() {
+        const form = document.getElementById('generateForm');
+        const formData = new FormData(form);
+        
+        const data = {
+            description: formData.get('description'),
+            timeValue: parseInt(formData.get('timeValue')),
+            timeUnit: formData.get('timeUnit')
+        };
+        
+        fetch(`/api-keys/<%= server %>/generate`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(data)
+        })
+        .then(response => response.json())
+        .then(result => {
+            if (result.success) {
+                showSuccess('API Key generada correctamente');
+                // Cerrar modal
+                const modal = bootstrap.Modal.getInstance(document.getElementById('generateModal'));
+                modal.hide();
+                // Recargar página
+                setTimeout(() => {
+                    location.reload();
+                }, 1000);
+            } else {
+                showError(result.error || 'Error generando API Key');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showError('Error de conexión');
+        });
+    }
+    
+    // Función para eliminar API Key
+    function deleteKey(keyId) {
+        if (confirm('¿Estás seguro de que quieres eliminar esta API Key?')) {
+            fetch(`/api-keys/<%= server %>/${keyId}`, {
+                method: 'DELETE'
+            })
+            .then(response => response.json())
+            .then(result => {
+                if (result.success) {
+                    showSuccess('API Key eliminada correctamente');
+                    // Recargar página
+                    setTimeout(() => {
+                        location.reload();
+                    }, 1000);
+                } else {
+                    showError(result.error || 'Error eliminando API Key');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showError('Error de conexión');
+            });
+        }
+    }
+    
+    // Función para actualizar contadores de tiempo
+    function updateTimeCounters() {
+        <% keys.forEach(key => { %>
+            <% if (key.time_remaining_seconds > 0) { %>
+                const timeElement<%= key.id %> = document.getElementById('time-<%= key.id %>');
+                if (timeElement<%= key.id %>) {
+                    let seconds = <%= key.time_remaining_seconds %>;
+                    const now = new Date().getTime();
+                    const startTime = now;
+                    
+                    function updateTime() {
+                        const elapsed = Math.floor((new Date().getTime() - startTime) / 1000);
+                        const remaining = Math.max(0, seconds - elapsed);
+                        
+                        if (remaining <= 0) {
+                            timeElement<%= key.id %>.textContent = 'Expirada';
+                            timeElement<%= key.id %>.className = 'neon-cyan';
+                            return;
+                        }
+                        
+                        const days = Math.floor(remaining / 86400);
+                        const hours = Math.floor((remaining % 86400) / 3600);
+                        const minutes = Math.floor((remaining % 3600) / 60);
+                        const secs = remaining % 60;
+                        
+                        let timeStr = '';
+                        if (days > 0) timeStr += `${days}d `;
+                        if (hours > 0) timeStr += `${hours}h `;
+                        if (minutes > 0) timeStr += `${minutes}m `;
+                        timeStr += `${secs}s`;
+                        
+                        timeElement<%= key.id %>.textContent = timeStr;
+                    }
+                    
+                    updateTime();
+                    setInterval(updateTime, 1000);
+                }
+            <% } %>
+        <% }); %>
+    }
+    
+    // Inicializar contadores cuando se carga la página
+    document.addEventListener('DOMContentLoaded', function() {
+        updateTimeCounters();
+    });
+</script>

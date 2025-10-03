@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Panel Admin API Keys</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-bg: #000000;
+            --secondary-bg: #1a1a1a;
+            --accent-purple: #8b5cf6;
+            --accent-cyan: #06b6d4;
+            --text-primary: #ffffff;
+            --text-secondary: #a1a1aa;
+            --border-color: #374151;
+        }
+        
+        body {
+            background: linear-gradient(135deg, var(--primary-bg) 0%, var(--secondary-bg) 100%);
+            color: var(--text-primary);
+            font-family: 'Courier New', monospace;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .login-container {
+            background: var(--secondary-bg);
+            border: 2px solid var(--accent-purple);
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 0 30px rgba(139, 92, 246, 0.3);
+            max-width: 400px;
+            width: 100%;
+        }
+        
+        .login-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        
+        .login-header h2 {
+            color: var(--accent-purple);
+            text-shadow: 0 0 10px rgba(139, 92, 246, 0.5);
+            margin-bottom: 0.5rem;
+        }
+        
+        .login-header p {
+            color: var(--text-secondary);
+            margin: 0;
+        }
+        
+        .form-control {
+            background: var(--primary-bg);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            border-radius: 10px;
+            padding: 12px 15px;
+        }
+        
+        .form-control:focus {
+            background: var(--primary-bg);
+            border-color: var(--accent-purple);
+            color: var(--text-primary);
+            box-shadow: 0 0 15px rgba(139, 92, 246, 0.3);
+        }
+        
+        .btn-login {
+            background: linear-gradient(135deg, var(--accent-purple) 0%, #7c3aed 100%);
+            border: none;
+            border-radius: 10px;
+            padding: 12px;
+            font-weight: bold;
+            transition: all 0.3s;
+            width: 100%;
+        }
+        
+        .btn-login:hover {
+            background: linear-gradient(135deg, #7c3aed 0%, var(--accent-purple) 100%);
+            box-shadow: 0 0 20px rgba(139, 92, 246, 0.4);
+            transform: translateY(-2px);
+        }
+        
+        .alert {
+            background: var(--primary-bg);
+            border: 1px solid #ef4444;
+            color: #ef4444;
+            border-radius: 10px;
+        }
+        
+        .input-group-text {
+            background: var(--primary-bg);
+            border: 1px solid var(--border-color);
+            color: var(--accent-purple);
+            border-radius: 10px 0 0 10px;
+        }
+        
+        .input-group .form-control {
+            border-radius: 0 10px 10px 0;
+        }
+        
+        .brand-icon {
+            font-size: 3rem;
+            color: var(--accent-purple);
+            text-shadow: 0 0 20px rgba(139, 92, 246, 0.5);
+            margin-bottom: 1rem;
+        }
+        
+        .footer-text {
+            text-align: center;
+            margin-top: 2rem;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+        
+        .footer-text a {
+            color: var(--accent-purple);
+            text-decoration: none;
+        }
+        
+        .footer-text a:hover {
+            color: var(--text-primary);
+            text-shadow: 0 0 10px rgba(139, 92, 246, 0.5);
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="login-header">
+            <div class="brand-icon">
+                <i class="fas fa-shield-alt"></i>
+            </div>
+            <h2>WolfData Admin</h2>
+            <p>Panel de Administración API Keys</p>
+        </div>
+        
+        <% if (error) { %>
+            <div class="alert alert-danger" role="alert">
+                <i class="fas fa-exclamation-circle me-2"></i>
+                <%= error %>
+            </div>
+        <% } %>
+        
+        <form method="POST" action="/login">
+            <div class="mb-3">
+                <label for="username" class="form-label">
+                    <i class="fas fa-user me-2"></i>
+                    Usuario
+                </label>
+                <div class="input-group">
+                    <span class="input-group-text">
+                        <i class="fas fa-user"></i>
+                    </span>
+                    <input type="text" class="form-control" id="username" name="username" required>
+                </div>
+            </div>
+            
+            <div class="mb-4">
+                <label for="password" class="form-label">
+                    <i class="fas fa-lock me-2"></i>
+                    Contraseña
+                </label>
+                <div class="input-group">
+                    <span class="input-group-text">
+                        <i class="fas fa-lock"></i>
+                    </span>
+                    <input type="password" class="form-control" id="password" name="password" required>
+                </div>
+            </div>
+            
+            <button type="submit" class="btn btn-primary btn-login">
+                <i class="fas fa-sign-in-alt me-2"></i>
+                Iniciar Sesión
+            </button>
+        </form>
+        
+        <div class="footer-text">
+            <p>Desarrollado por <a href="https://t.me/zGatoO" target="_blank">@zGatoO</a></p>
+            <p>Soporte: <a href="https://t.me/choco_tete" target="_blank">@choco_tete</a> | <a href="https://t.me/WinniePoohOFC" target="_blank">@WinniePoohOFC</a></p>
+        </div>
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

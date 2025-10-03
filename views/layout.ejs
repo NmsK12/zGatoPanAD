@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %> - Panel Admin API Keys</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-bg: #000000;
+            --secondary-bg: #1a1a1a;
+            --accent-purple: #8b5cf6;
+            --accent-cyan: #06b6d4;
+            --text-primary: #ffffff;
+            --text-secondary: #a1a1aa;
+            --border-color: #374151;
+        }
+        
+        body {
+            background: var(--primary-bg);
+            color: var(--text-primary);
+            font-family: 'Courier New', monospace;
+        }
+        
+        .sidebar {
+            min-height: 100vh;
+            background: linear-gradient(135deg, var(--primary-bg) 0%, var(--secondary-bg) 100%);
+            border-right: 2px solid var(--accent-purple);
+            box-shadow: 0 0 20px rgba(139, 92, 246, 0.3);
+        }
+        
+        .sidebar .nav-link {
+            color: var(--text-secondary);
+            border-radius: 8px;
+            margin: 2px 0;
+            transition: all 0.3s;
+            border: 1px solid transparent;
+        }
+        
+        .sidebar .nav-link:hover {
+            color: var(--text-primary);
+            background: rgba(139, 92, 246, 0.1);
+            border-color: var(--accent-purple);
+            box-shadow: 0 0 10px rgba(139, 92, 246, 0.3);
+        }
+        
+        .sidebar .nav-link.active {
+            color: var(--text-primary);
+            background: rgba(139, 92, 246, 0.2);
+            border-color: var(--accent-purple);
+            box-shadow: 0 0 15px rgba(139, 92, 246, 0.4);
+        }
+        
+        .main-content {
+            background: var(--primary-bg);
+            min-height: 100vh;
+        }
+        
+        .card {
+            background: var(--secondary-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+        }
+        
+        .card-header {
+            background: linear-gradient(135deg, var(--secondary-bg) 0%, #2a2a2a 100%);
+            border-bottom: 1px solid var(--accent-purple);
+            border-radius: 12px 12px 0 0 !important;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, var(--accent-purple) 0%, #7c3aed 100%);
+            border: none;
+            border-radius: 8px;
+            transition: all 0.3s;
+        }
+        
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #7c3aed 0%, var(--accent-purple) 100%);
+            box-shadow: 0 0 15px rgba(139, 92, 246, 0.4);
+            transform: translateY(-2px);
+        }
+        
+        .btn-danger {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            border: none;
+            border-radius: 8px;
+            transition: all 0.3s;
+        }
+        
+        .btn-danger:hover {
+            background: linear-gradient(135deg, #dc2626 0%, #ef4444 100%);
+            box-shadow: 0 0 15px rgba(239, 68, 68, 0.4);
+            transform: translateY(-2px);
+        }
+        
+        .table-dark {
+            background: var(--secondary-bg);
+            border-color: var(--border-color);
+        }
+        
+        .table-dark th {
+            background: var(--primary-bg);
+            border-color: var(--accent-purple);
+            color: var(--text-primary);
+        }
+        
+        .table-dark td {
+            border-color: var(--border-color);
+            color: var(--text-secondary);
+        }
+        
+        .table-dark tbody tr:hover {
+            background: rgba(139, 92, 246, 0.1);
+        }
+        
+        .neon-white {
+            color: var(--text-primary);
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+        }
+        
+        .neon-purple {
+            color: var(--accent-purple);
+            text-shadow: 0 0 10px rgba(139, 92, 246, 0.5);
+        }
+        
+        .neon-cyan {
+            color: var(--accent-cyan);
+            text-shadow: 0 0 10px rgba(6, 182, 212, 0.5);
+        }
+        
+        .badge {
+            border-radius: 6px;
+            font-weight: 500;
+        }
+        
+        .badge.bg-success {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important;
+        }
+        
+        .badge.bg-danger {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%) !important;
+        }
+        
+        .badge.bg-warning {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%) !important;
+        }
+        
+        .form-control {
+            background: var(--secondary-bg);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            border-radius: 8px;
+        }
+        
+        .form-control:focus {
+            background: var(--secondary-bg);
+            border-color: var(--accent-purple);
+            color: var(--text-primary);
+            box-shadow: 0 0 10px rgba(139, 92, 246, 0.3);
+        }
+        
+        .form-select {
+            background: var(--secondary-bg);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            border-radius: 8px;
+        }
+        
+        .form-select:focus {
+            background: var(--secondary-bg);
+            border-color: var(--accent-purple);
+            color: var(--text-primary);
+            box-shadow: 0 0 10px rgba(139, 92, 246, 0.3);
+        }
+        
+        .modal-content {
+            background: var(--secondary-bg);
+            border: 1px solid var(--accent-purple);
+            border-radius: 12px;
+        }
+        
+        .modal-header {
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .modal-footer {
+            border-top: 1px solid var(--border-color);
+        }
+        
+        .toast {
+            background: var(--secondary-bg);
+            border: 1px solid var(--accent-purple);
+            color: var(--text-primary);
+        }
+        
+        .toast-header {
+            background: var(--primary-bg);
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .navbar {
+            background: var(--secondary-bg) !important;
+            border-bottom: 1px solid var(--accent-purple);
+        }
+        
+        .navbar-brand {
+            color: var(--accent-purple) !important;
+            font-weight: bold;
+            text-shadow: 0 0 10px rgba(139, 92, 246, 0.5);
+        }
+        
+        .navbar-nav .nav-link {
+            color: var(--text-secondary) !important;
+        }
+        
+        .navbar-nav .nav-link:hover {
+            color: var(--text-primary) !important;
+        }
+        
+        .support-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: var(--secondary-bg);
+            border-top: 1px solid var(--accent-purple);
+            padding: 10px;
+            z-index: 1000;
+            display: none;
+        }
+        
+        .support-bar.show {
+            display: block;
+        }
+        
+        .support-links {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+        }
+        
+        .support-links a {
+            color: var(--accent-purple);
+            text-decoration: none;
+            font-weight: bold;
+        }
+        
+        .support-links a:hover {
+            color: var(--text-primary);
+            text-shadow: 0 0 10px rgba(139, 92, 246, 0.5);
+        }
+        
+        .support-toggle {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: var(--accent-purple);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            font-size: 20px;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(139, 92, 246, 0.4);
+            transition: all 0.3s;
+        }
+        
+        .support-toggle:hover {
+            background: #7c3aed;
+            transform: scale(1.1);
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            <div class="col-md-3 col-lg-2 px-0">
+                <div class="sidebar">
+                    <div class="p-3">
+                        <h4 class="neon-purple mb-4">
+                            <i class="fas fa-shield-alt me-2"></i>
+                            WolfData Admin
+                        </h4>
+                        <nav class="nav flex-column">
+                            <a class="nav-link" href="/dashboard">
+                                <i class="fas fa-tachometer-alt me-2"></i>
+                                Dashboard
+                            </a>
+                            <hr class="my-2" style="border-color: var(--border-color);">
+                            <h6 class="neon-cyan mb-2">API Keys</h6>
+                            <a class="nav-link" href="/api-keys/dni">
+                                <i class="fas fa-id-card me-2"></i>
+                                /dni - DNI Básico
+                            </a>
+                            <a class="nav-link" href="/api-keys/dnit">
+                                <i class="fas fa-id-card me-2"></i>
+                                /dnit - DNI Detallado
+                            </a>
+                            <a class="nav-link" href="/api-keys/nombres">
+                                <i class="fas fa-search me-2"></i>
+                                /nombres - Búsqueda
+                            </a>
+                            <a class="nav-link" href="/api-keys/certificados">
+                                <i class="fas fa-certificate me-2"></i>
+                                /certificados - Certificados
+                            </a>
+                            <a class="nav-link" href="/api-keys/arbol">
+                                <i class="fas fa-sitemap me-2"></i>
+                                /arbol - Árbol Genealógico
+                            </a>
+                            <hr class="my-2" style="border-color: var(--border-color);">
+                            <a class="nav-link" href="/users">
+                                <i class="fas fa-users me-2"></i>
+                                Usuarios
+                            </a>
+                            <a class="nav-link" href="/logout">
+                                <i class="fas fa-sign-out-alt me-2"></i>
+                                Cerrar Sesión
+                            </a>
+                        </nav>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Main Content -->
+            <div class="col-md-9 col-lg-10">
+                <div class="main-content p-4">
+                    <!-- Navbar -->
+                    <nav class="navbar navbar-expand-lg mb-4">
+                        <div class="container-fluid">
+                            <span class="navbar-brand">
+                                <i class="fas fa-key me-2"></i>
+                                <%= title %>
+                            </span>
+                            <div class="navbar-nav ms-auto">
+                                <span class="nav-item nav-link">
+                                    <i class="fas fa-user me-2"></i>
+                                    <%= username %>
+                                </span>
+                            </div>
+                        </div>
+                    </nav>
+                    
+                    <!-- Page Content -->
+                    <%- body %>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Support Bar -->
+    <div class="support-bar" id="supportBar">
+        <div class="support-links">
+            <a href="https://t.me/choco_tete" target="_blank">
+                <i class="fab fa-telegram me-1"></i>
+                @choco_tete
+            </a>
+            <a href="https://t.me/WinniePoohOFC" target="_blank">
+                <i class="fab fa-telegram me-1"></i>
+                @WinniePoohOFC
+            </a>
+            <a href="https://t.me/zGatoO" target="_blank">
+                <i class="fab fa-telegram me-1"></i>
+                @zGatoO
+            </a>
+        </div>
+    </div>
+    
+    <!-- Support Toggle Button -->
+    <button class="support-toggle" onclick="toggleSupport()">
+        <i class="fas fa-question"></i>
+    </button>
+    
+    <!-- Toast Container -->
+    <div class="toast-container position-fixed top-0 end-0 p-3" id="toastContainer"></div>
+    
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Funciones de toast
+        function showToast(message, type = 'info') {
+            const toastId = 'toast-' + Date.now();
+            const toastHtml = `
+                <div class="toast" id="${toastId}" role="alert" aria-live="assertive" aria-atomic="true">
+                    <div class="toast-header">
+                        <i class="fas fa-${type === 'success' ? 'check-circle text-success' : type === 'error' ? 'exclamation-circle text-danger' : type === 'warning' ? 'exclamation-triangle text-warning' : 'info-circle text-info'} me-2"></i>
+                        <strong class="me-auto">${type === 'success' ? 'Éxito' : type === 'error' ? 'Error' : type === 'warning' ? 'Advertencia' : 'Información'}</strong>
+                        <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+                    </div>
+                    <div class="toast-body">
+                        ${message}
+                    </div>
+                </div>
+            `;
+            
+            document.getElementById('toastContainer').insertAdjacentHTML('beforeend', toastHtml);
+            const toastElement = document.getElementById(toastId);
+            const toast = new bootstrap.Toast(toastElement);
+            toast.show();
+            
+            // Remover el toast del DOM después de que se oculte
+            toastElement.addEventListener('hidden.bs.toast', function() {
+                toastElement.remove();
+            });
+        }
+        
+        function showSuccess(message) {
+            showToast(message, 'success');
+        }
+        
+        function showError(message) {
+            showToast(message, 'error');
+        }
+        
+        function showWarning(message) {
+            showToast(message, 'warning');
+        }
+        
+        // Función para toggle del support bar
+        function toggleSupport() {
+            const supportBar = document.getElementById('supportBar');
+            supportBar.classList.toggle('show');
+        }
+        
+        // Funciones para el dashboard
+        function refreshStats() {
+            const now = new Date();
+            const lastUpdateElement = document.getElementById('last-update');
+            if (lastUpdateElement) {
+                lastUpdateElement.textContent = now.toLocaleTimeString();
+            }
+        }
+        
+        // Actualizar estadísticas cada 30 segundos
+        setInterval(refreshStats, 30000);
+        
+        // Cargar estadísticas iniciales
+        document.addEventListener('DOMContentLoaded', function() {
+            if (window.location.pathname === '/dashboard') {
+                refreshStats();
+            }
+        });
+    </script>
+</body>
+</html>
