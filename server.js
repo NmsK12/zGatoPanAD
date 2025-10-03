@@ -444,9 +444,96 @@ app.post('/api-keys/:server/generate', requireAuth, async (req, res) => {
             console.error('Error en sincronización (no crítico):', syncError.message);
         }
         
-        res.json({ success: true, apiKey });
+        // Generar enlace de ejemplo
+        const exampleDni = '44443333';
+        const exampleUrl = `https://${API_SERVERS[server].url}/${API_SERVERS[server].endpoint}?dni=${exampleDni}&key=${apiKey}`;
+        
+        res.json({ 
+            success: true, 
+            apiKey: apiKey,
+            exampleUrl: exampleUrl,
+            exampleDni: exampleDni,
+            serverUrl: `https://${API_SERVERS[server].url}`,
+            endpoint: API_SERVERS[server].endpoint
+        });
     } catch (error) {
         console.error('Error generando API key:', error);
+        res.status(500).json({ error: 'Error interno del servidor' });
+    }
+});
+
+// Ruta para renovar API key
+app.post('/api-keys/:server/:keyId/renew', requireAuth, async (req, res) => {
+    const { server, keyId } = req.params;
+    const { timeValue, timeUnit } = req.body;
+    
+    if (!API_SERVERS[server]) {
+        return res.status(404).json({ error: 'Servidor no encontrado' });
+    }
+    
+    try {
+        const client = await pool.connect();
+        const dbServerName = API_SERVERS[server].dbName;
+        
+        // Verificar permisos de renovación
+        const keyResult = await client.query(`
+            SELECT created_by, expires_at FROM api_keys 
+            WHERE id = $1 AND server = $2
+        `, [keyId, dbServerName]);
+        
+        if (keyResult.rows.length === 0) {
+            client.release();
+            return res.status(404).json({ error: 'API key no encontrada' });
+        }
+        
+        const keyCreator = keyResult.rows[0].created_by;
+        const currentUser = req.session.username;
+        
+        // Solo el creador o zGatoO puede renovar
+        if (keyCreator !== currentUser && currentUser !== 'zGatoO') {
+            client.release();
+            return res.status(403).json({ error: 'No tienes permisos para renovar esta API key' });
+        }
+        
+        // Calcular nuevo tiempo de expiración
+        const timeValueNum = parseInt(timeValue);
+        let newExpiresAt = new Date(keyResult.rows[0].expires_at); // Tiempo actual de expiración
+        
+        switch (timeUnit) {
+            case 'minutes':
+                newExpiresAt.setMinutes(newExpiresAt.getMinutes() + timeValueNum);
+                break;
+            case 'hours':
+                newExpiresAt.setHours(newExpiresAt.getHours() + timeValueNum);
+                break;
+            case 'days':
+                newExpiresAt.setDate(newExpiresAt.getDate() + timeValueNum);
+                break;
+            case 'months':
+                newExpiresAt.setMonth(newExpiresAt.getMonth() + timeValueNum);
+                break;
+            case 'years':
+                newExpiresAt.setFullYear(newExpiresAt.getFullYear() + timeValueNum);
+                break;
+        }
+        
+        // Actualizar en la base de datos del panel
+        await client.query(`
+            UPDATE api_keys 
+            SET expires_at = $1 
+            WHERE id = $2 AND server = $3
+        `, [newExpiresAt, keyId, dbServerName]);
+        
+        client.release();
+        
+        res.json({ 
+            success: true, 
+            newExpiresAt: newExpiresAt.toISOString(),
+            message: `API key renovada exitosamente. Nueva expiración: ${newExpiresAt.toLocaleString()}`
+        });
+        
+    } catch (error) {
+        console.error('Error renovando API key:', error);
         res.status(500).json({ error: 'Error interno del servidor' });
     }
 });

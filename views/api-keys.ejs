@@ -72,13 +72,18 @@
                                         </td>
                                         <td class="neon-white"><%= key.created_by %></td>
                                         <td>
-                                            <% if (key.can_delete) { %>
-                                                <button class="btn btn-sm btn-danger" onclick="deleteKey('<%= key.id %>')">
-                                                    <i class="fas fa-trash"></i>
-                                                </button>
-                                            <% } else { %>
-                                                <span class="text-muted">No disponible</span>
-                                            <% } %>
+                                            <div class="btn-group" role="group">
+                                                <% if (key.can_delete) { %>
+                                                    <button class="btn btn-sm btn-warning me-1" onclick="showRenewModal('<%= key.id %>', '<%= key.key %>')" title="Renovar">
+                                                        <i class="fas fa-clock"></i>
+                                                    </button>
+                                                    <button class="btn btn-sm btn-danger" onclick="deleteKey('<%= key.id %>')" title="Eliminar">
+                                                        <i class="fas fa-trash"></i>
+                                                    </button>
+                                                <% } else { %>
+                                                    <span class="text-muted">No disponible</span>
+                                                <% } %>
+                                            </div>
                                         </td>
                                     </tr>
                                 <% }); %>
@@ -139,7 +144,7 @@
                         <i class="fas fa-info-circle me-2"></i>
                         <strong>Ejemplo de uso:</strong><br>
                         <code class="neon-cyan">
-                            <%= serverInfo.url %>/dniresult?dni=12345678&key=TU_API_KEY
+                            <%= serverInfo.url %>/<%= serverInfo.endpoint %>?dni=44443333&key=TU_API_KEY
                         </code>
                     </div>
                 </form>
@@ -150,6 +155,131 @@
                 </button>
                 <button type="button" class="btn btn-primary" onclick="generateKey()">
                     <i class="fas fa-key me-2"></i>Generar Key
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para renovar API Key -->
+<div class="modal fade" id="renewModal" tabindex="-1" aria-labelledby="renewModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title neon-white" id="renewModalLabel">
+                    <i class="fas fa-clock me-2"></i>
+                    Renovar API Key
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="renewForm">
+                    <input type="hidden" id="renewKeyId" name="keyId">
+                    
+                    <div class="mb-3">
+                        <label class="form-label neon-white">
+                            <i class="fas fa-key me-2"></i>
+                            API Key
+                        </label>
+                        <input type="text" class="form-control" id="renewKeyDisplay" readonly>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label neon-white">
+                            <i class="fas fa-plus-circle me-2"></i>
+                            Tiempo a agregar
+                        </label>
+                        <div class="row">
+                            <div class="col-8">
+                                <input type="number" class="form-control" id="renewTimeValue" name="timeValue" 
+                                       min="1" value="1" required>
+                            </div>
+                            <div class="col-4">
+                                <select class="form-select" id="renewTimeUnit" name="timeUnit" required>
+                                    <option value="minutes">Minutos</option>
+                                    <option value="hours" selected>Horas</option>
+                                    <option value="days">Días</option>
+                                    <option value="months">Meses</option>
+                                    <option value="years">Años</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="alert alert-warning">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        <strong>Nota:</strong> El tiempo se agregará al tiempo restante actual de la API Key.
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="fas fa-times me-2"></i>Cancelar
+                </button>
+                <button type="button" class="btn btn-warning" onclick="renewKey()">
+                    <i class="fas fa-clock me-2"></i>Renovar Key
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para mostrar API Key generada -->
+<div class="modal fade" id="keyGeneratedModal" tabindex="-1" aria-labelledby="keyGeneratedModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title neon-white" id="keyGeneratedModalLabel">
+                    <i class="fas fa-check-circle me-2"></i>
+                    API Key Generada
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-success">
+                    <i class="fas fa-key me-2"></i>
+                    <strong>¡API Key generada exitosamente!</strong>
+                </div>
+                
+                <div class="mb-3">
+                    <label class="form-label neon-white">
+                        <i class="fas fa-key me-2"></i>
+                        Tu API Key:
+                    </label>
+                    <div class="input-group">
+                        <input type="text" class="form-control" id="generatedKey" readonly>
+                        <button class="btn btn-outline-secondary" type="button" onclick="copyToClipboard('generatedKey')">
+                            <i class="fas fa-copy"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="mb-3">
+                    <label class="form-label neon-white">
+                        <i class="fas fa-link me-2"></i>
+                        Enlace de ejemplo (DNI: 44443333):
+                    </label>
+                    <div class="input-group">
+                        <input type="text" class="form-control" id="exampleUrl" readonly>
+                        <button class="btn btn-outline-secondary" type="button" onclick="copyToClipboard('exampleUrl')">
+                            <i class="fas fa-copy"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle me-2"></i>
+                    <strong>Instrucciones:</strong>
+                    <ul class="mb-0 mt-2">
+                        <li>Copia la API Key y guárdala en un lugar seguro</li>
+                        <li>Usa el enlace de ejemplo como referencia para tus consultas</li>
+                        <li>Reemplaza "44443333" con el DNI que quieras consultar</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-bs-dismiss="modal">
+                    <i class="fas fa-check me-2"></i>Entendido
                 </button>
             </div>
         </div>
@@ -178,14 +308,22 @@
         .then(response => response.json())
         .then(result => {
             if (result.success) {
-                showSuccess('API Key generada correctamente');
-                // Cerrar modal
-                const modal = bootstrap.Modal.getInstance(document.getElementById('generateModal'));
-                modal.hide();
-                // Recargar página
-                setTimeout(() => {
+                // Mostrar modal con la key generada
+                document.getElementById('generatedKey').value = result.apiKey;
+                document.getElementById('exampleUrl').value = result.exampleUrl;
+                
+                // Cerrar modal de generación
+                const generateModal = bootstrap.Modal.getInstance(document.getElementById('generateModal'));
+                generateModal.hide();
+                
+                // Mostrar modal de key generada
+                const keyModal = new bootstrap.Modal(document.getElementById('keyGeneratedModal'));
+                keyModal.show();
+                
+                // Recargar página después de cerrar el modal
+                document.getElementById('keyGeneratedModal').addEventListener('hidden.bs.modal', function() {
                     location.reload();
-                }, 1000);
+                });
             } else {
                 showError(result.error || 'Error generando API Key');
             }
@@ -217,6 +355,76 @@
             .catch(error => {
                 console.error('Error:', error);
                 showError('Error de conexión');
+            });
+        }
+    }
+    
+    // Función para mostrar modal de renovación
+    function showRenewModal(keyId, keyValue) {
+        document.getElementById('renewKeyId').value = keyId;
+        document.getElementById('renewKeyDisplay').value = keyValue;
+        document.getElementById('renewTimeValue').value = 1;
+        document.getElementById('renewTimeUnit').value = 'hours';
+        
+        const renewModal = new bootstrap.Modal(document.getElementById('renewModal'));
+        renewModal.show();
+    }
+    
+    // Función para renovar API Key
+    function renewKey() {
+        const form = document.getElementById('renewForm');
+        const formData = new FormData(form);
+        
+        const data = {
+            timeValue: parseInt(formData.get('timeValue')),
+            timeUnit: formData.get('timeUnit')
+        };
+        
+        const keyId = document.getElementById('renewKeyId').value;
+        
+        fetch(`/api-keys/<%= server %>/${keyId}/renew`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(data)
+        })
+        .then(response => response.json())
+        .then(result => {
+            if (result.success) {
+                showSuccess(result.message);
+                // Cerrar modal
+                const modal = bootstrap.Modal.getInstance(document.getElementById('renewModal'));
+                modal.hide();
+                // Recargar página
+                setTimeout(() => {
+                    location.reload();
+                }, 1000);
+            } else {
+                showError(result.error || 'Error renovando API Key');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showError('Error de conexión');
+        });
+    }
+    
+    // Función para copiar al portapapeles
+    function copyToClipboard(elementId) {
+        const element = document.getElementById(elementId);
+        element.select();
+        element.setSelectionRange(0, 99999); // Para móviles
+        
+        try {
+            document.execCommand('copy');
+            showSuccess('¡Copiado al portapapeles!');
+        } catch (err) {
+            // Fallback para navegadores modernos
+            navigator.clipboard.writeText(element.value).then(() => {
+                showSuccess('¡Copiado al portapapeles!');
+            }).catch(() => {
+                showError('No se pudo copiar al portapapeles');
             });
         }
     }
