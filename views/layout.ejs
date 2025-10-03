@@ -638,15 +638,6 @@
             margin-bottom: 2rem;
         }
         
-        .welcome-loading {
-            display: inline-block;
-            width: 40px;
-            height: 40px;
-            border: 4px solid rgba(138, 75, 255, 0.3);
-            border-radius: 50%;
-            border-top-color: #8a4bff;
-            animation: spin 1s ease-in-out infinite;
-        }
     </style>
 </head>
 <body class="theme-hacker">
@@ -657,8 +648,7 @@
     <div class="welcome-overlay" id="welcomeOverlay">
         <div class="welcome-content">
             <div class="welcome-title">BIENVENIDO</div>
-            <div class="welcome-subtitle" id="welcomeUsername">Cargando...</div>
-            <div class="welcome-loading"></div>
+            <div class="welcome-subtitle" id="welcomeUsername">USUARIO</div>
         </div>
     </div>
     
@@ -897,7 +887,10 @@
             const username = '<%= username || "Usuario" %>';
             welcomeUsername.textContent = username.toUpperCase();
             
-            // Mostrar animación por 3 segundos
+            // Duración aleatoria entre 1 y 3 segundos
+            const duration = Math.floor(Math.random() * 2000) + 1000; // 1000ms a 3000ms
+            
+            // Mostrar animación por tiempo aleatorio
             setTimeout(() => {
                 welcomeOverlay.style.opacity = '0';
                 welcomeOverlay.style.transform = 'scale(0.8)';
@@ -907,7 +900,7 @@
                 setTimeout(() => {
                     welcomeOverlay.style.display = 'none';
                 }, 500);
-            }, 3000);
+            }, duration);
         }
     </script>
 </body>
