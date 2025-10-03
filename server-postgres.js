@@ -347,7 +347,7 @@ app.get('/api-keys/:server', requireAuth, async (req, res) => {
                    TO_CHAR(expires_at, 'DD/MM/YYYY HH24:MI') as expires_at_formatted,
                    TO_CHAR(created_at, 'DD/MM/YYYY HH24:MI') as created_at_formatted,
                    CASE WHEN last_used IS NOT NULL THEN TO_CHAR(last_used, 'DD/MM/YYYY HH24:MI') ELSE 'Nunca' END as last_used_formatted,
-                   COALESCE(time_remaining, EXTRACT(EPOCH FROM (expires_at - NOW()))::INTEGER) as time_remaining_seconds
+                   EXTRACT(EPOCH FROM (expires_at - NOW()))::INTEGER as time_remaining_seconds
             FROM api_keys 
             WHERE server = $1 
             ORDER BY created_at DESC
@@ -369,7 +369,14 @@ app.get('/api-keys/:server', requireAuth, async (req, res) => {
         
     } catch (error) {
         console.error('Error obteniendo API Keys:', error);
-        res.status(500).send('Error obteniendo API Keys');
+        console.error('Server:', server);
+        console.error('DB Server Name:', API_SERVERS[server]?.dbName);
+        res.status(500).json({ 
+            error: 'Error obteniendo API Keys', 
+            details: error.message,
+            server: server,
+            dbServerName: API_SERVERS[server]?.dbName
+        });
     }
 });
 
