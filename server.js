@@ -95,7 +95,7 @@ const API_SERVERS = {
         name: '/arbol',
         description: 'Árbol Genealógico',
         url: 'https://zgatooarg.up.railway.app',
-        endpoint: 'arbol',
+        endpoint: 'ag',
         color: '#9b59b6',
         dbName: 'arbol-genealogico',
         exampleParams: 'dni=44443333'
@@ -363,7 +363,7 @@ app.get('/api-keys/:server', requireAuth, async (req, res) => {
                 created_by,
                 usage_count,
                 last_used,
-                EXTRACT(EPOCH FROM (expires_at - NOW()))::INTEGER as time_remaining_seconds
+                EXTRACT(EPOCH FROM (expires_at - NOW()))::BIGINT as time_remaining_seconds
             FROM api_keys 
             WHERE server = $1 
             ORDER BY created_at DESC
